@@ -1,0 +1,79 @@
+/*
+
+This file modifies a user's default key bindings under Mac OS X. It should be 
+placed in the following location for each user whose bindings will be affected:
+
+~/Library/KeyBindings/DefaultKeyBinding.Dict
+
+Once a valid file is present in this location, the changes will take effect 
+immediately for all Cocoa applications (some may require a restart, but most 
+in my experience do not). In practice this means that almost all common 
+applications are affected with the exception of Firefox and pre-Lion versions 
+of iTunes (the post-Lion versions are — finally — Cocoa-based). There are also 
+a few specific areas where some functionality doesn't work; for instance, the 
+Home key doesn't work at all when renaming files in the Finder. I'm not sure  
+why, but in any case the issues are minor overall.
+
+The most notable changes included are the altered behaviour of the Home, End, 
+Page Up, and Page Down keys — specifically, they've been changed to more 
+closely match the expected behaviour of other UNIX-like systems (and Windows).
+
+In addition there are several new bindings that i've added that perform 
+functions similar to those accessible from the command line. I believe some, 
+like ^U, are already baked into OS X, but who knows.
+
+
+As a reference for further modification, some common modifiers and key codes 
+are provided below:
+
+^ = Ctrl
+~ = Option / Alt
+@ = Open-Apple / Command
+$ = Shift
+# = number pad
+
+up arrow    = \UF700
+down arrow  = \UF701
+left arrow  = \UF702
+right arrow = \UF703
+
+Escape      = \U001B
+Tab         = \U0009
+Return      = \U000A
+Backspace   = \U0008
+Delete      = \UF728
+
+Home        = \UF729
+End         = \UF72B
+Page Up     = \UF72C
+Page Down   = \UF72D
+
+*/
+
+{
+"\UF729"    = "moveToBeginningOfLine:";                        /* Home                */
+"~\UF729"   = "moveToBeginningOfDocument:";                    /* Opt + Home          */
+"$\UF729"   = "moveToBeginningOfLineAndModifySelection:";      /* Shift + Home        */
+"$~\UF729"  = "moveToBeginningOfDocumentAndModifySelection:";  /* Opt + Shift + Home  */
+"\UF72B"    = "moveToEndOfLine:";                              /* End                 */
+"~\UF72B"   = "moveToEndOfDocument:";                          /* Opt + End           */
+"$\UF72B"   = "moveToEndOfLineAndModifySelection:";            /* Shift + End         */
+"$~\UF72B"  = "moveToEndOfDocumentAndModifySelection:";        /* Opt + Shift + End   */
+"\UF72C"    = "pageUp:";                                       /* Page Up             */
+"\UF72D"    = "pageDown:";                                     /* Page Down           */
+"~\UF72C"   = "scrollPageUp:";                                 /* Opt + Page Up       */
+"~\UF72D"   = "scrollPageDown:";                               /* Opt + Page Down     */
+"$\UF72C"   = "pageUpAndModifySelection:";                     /* Shift + Page Up     */
+"$\UF72D"   = "pageDownAndModifySelection:";                   /* Shift + Page Down   */
+
+
+/* UNIX-ish shortcuts */
+"^~b"       = "moveWordBackward:";                             /* Ctrl + Opt + B      */
+"^~f"       = "moveWordForward:";                              /* Ctrl + Opt + F      */
+"^~l"       = "lowercaseWord:";                                /* Ctrl + Opt + L      */
+"^~t"       = "transposeWords:";                               /* Ctrl + Opt + T      */
+"^~u"       = "uppercaseWord:";                                /* Ctrl + Opt + U      */
+"^t"        = "transpose:";                                    /* Ctrl + T            */
+"^u"        = "deleteToBeginningOfLine:";                      /* Ctrl + U            */
+"^w"        = "deleteWordBackward:";                           /* Ctrl + W            */
+}
