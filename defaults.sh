@@ -70,7 +70,7 @@ defaults write com.apple.dock no-glass -bool true
 # TEXTEDIT SETTINGS
 # ######################################################################
 
-# Change the keyboard shortcut for 'Don't Save' back to Cmd+D
+# Change the keyboard shortcut for 'Don't Save' back to ⌘D
 defaults write -g NSSavePanelStandardDesktopShortcutOnly -bool true
 
 
