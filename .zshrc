@@ -78,13 +78,13 @@ at_normal=$'\e[0m'
 # PROMPT="%c %{${fg_red}%}%#%{${at_normal}%} "
 
 # GREEN left prompt for local — DISABLED
-PROMPT="%{${bg_green2}%}%m%{${at_normal}%}:%{${fg_grey}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
+PROMPT="%{${bg_green2}%}%m%{${at_normal}%}%{${fg_black2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
 
 # RED left prompt for satanism — DISABLED
 # PROMPT="%{${bg_red2}%}satanism%{${at_normal}%}%{${fg_black2}%}:%{${at_normal}%}%c %{${fg_red2}%}%#%{${at_normal}%} "
 
 # CYAN left prompt for dreamhost — DISABLED
-# PROMPT="%{${bg_cyan2}%}dreamhost%{${at_normal}%}:%{${fg_grey}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
+# PROMPT="%{${bg_cyan2}%}dreamhost%{${at_normal}%}%{${fg_black2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
 
 
 # #####################################
