@@ -1,6 +1,7 @@
 # ##############################################################################
 # This script is used to configure git and clone my configs repository.
 # (Obviously git and SSH keys must already be in their appropriate places.)
+# (And this will have to be run separately from the other things...)
 # ##############################################################################
 
 # Make sure git is installed (just in case i forget...)
