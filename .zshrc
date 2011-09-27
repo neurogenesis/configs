@@ -6,6 +6,20 @@ SAVEHIST=1000
 
 
 # ####################
+# SET LOCALE
+# set terminal locale
+# ####################
+
+export LANG="en_GB.UTF-8"
+export LC_COLLATE="en_GB.UTF-8"
+export LC_CTYPE="en_GB.UTF-8"
+export LC_MESSAGES="en_GB.UTF-8"
+export LC_MONETARY="en_GB.UTF-8"
+export LC_NUMERIC="en_GB.UTF-8"
+export LC_TIME="en_GB.UTF-8"
+
+
+# ####################
 # SET COLOURS
 # set terminal colours
 # ####################
@@ -65,26 +79,26 @@ at_normal=$'\e[0m'
 # SET PROMPTS
 # ###########
 
-# right prompt: time — DISABLED
+# right prompt: time — DISABLED
 # RPROMPT="%{${fg_grey}%}^%D{%H:%M:%S}%{${at_normal}%}"
 
-# left prompt: bash style (no colour) — DISABLED
+# left prompt: bash style (no colour) — DISABLED
 # PROMPT="%m:%c %n$ "
 
-# left prompt: bash style (with colour) — DISABLED
+# left prompt: bash style (with colour) — DISABLED
 # PROMPT="%{${fg_grey}%}%m%{${at_normal}%}:%{${fg_cyan}%}%c %{${fg_grey}%}%n%{${fg_red}%}$%{${at_normal}%} "
 
-# left prompt: — DISABLED
+# left prompt: — DISABLED
 # PROMPT="%c %{${fg_red}%}%#%{${at_normal}%} "
 
-# GREEN left prompt for local — DISABLED
-PROMPT="%{${bg_green2}%}%m%{${at_normal}%}%{${fg_black2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
+# GREEN left prompt for local — DISABLED
+PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
 
-# RED left prompt for satanism — DISABLED
-# PROMPT="%{${bg_red2}%}satanism%{${at_normal}%}%{${fg_black2}%}:%{${at_normal}%}%c %{${fg_red2}%}%#%{${at_normal}%} "
+# RED left prompt for satanism — DISABLED
+# PROMPT="%{${fg_red2}%}satanism%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_red2}%}%#%{${at_normal}%} "
 
-# CYAN left prompt for dreamhost — DISABLED
-# PROMPT="%{${bg_cyan2}%}dreamhost%{${at_normal}%}%{${fg_black2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
+# CYAN left prompt for dreamhost — DISABLED
+# PROMPT="%{${fg_cyan2}%}dreamhost%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
 
 
 # #####################################
@@ -134,4 +148,3 @@ setopt COMPLETE_IN_WORD
 # tab completion is really irritating otherwise :(
 # ################################################
 unset CDPATH
-
