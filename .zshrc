@@ -116,10 +116,10 @@ bindkey	"^[[3~"  delete-char
 bindkey	"^[3;5~" delete-char
 
 
-# ################
-# SET EE TO EDITOR
-# ################
-# export EDITOR=ee
+# ##########
+# SET EDITOR
+# ##########
+export EDITOR='mate -w'
 
 
 # ########################
