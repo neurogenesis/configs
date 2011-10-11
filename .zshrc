@@ -91,7 +91,7 @@ at_normal=$'\e[0m'
 # left prompt: — DISABLED
 # PROMPT="%c %{${fg_red}%}%#%{${at_normal}%} "
 
-# GREEN left prompt for local — DISABLED
+# GREEN left prompt for local
 PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
 
 # RED left prompt for satanism — DISABLED
@@ -103,7 +103,7 @@ PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{$
 
 # #####################################
 # ENABLE HOME/END/DELETE KEYS
-# (this probably doesn't work, i dunno)
+# (this doesn't actually work, i dunno)
 # #####################################
 
 if [ "$TERM" = "xterm-256color" ]
@@ -116,10 +116,29 @@ bindkey	"^[[3~"  delete-char
 bindkey	"^[3;5~" delete-char
 
 
-# ##########
+# #########################################
 # SET EDITOR
-# ##########
+# Let's set the default editor to TextMate,
+# and then make an alias from 'edit'
+# #########################################
 export EDITOR='mate -w'
+alias edit=$EDITOR
+
+
+# ############################################################################
+# X-MAN-PAGE
+# Opening links using the URI scheme x-man-page://command will open the
+# specified man page in a new Terminal window which uses the 'Man Page' theme.
+# This is fantastic compared to reading it in the current Terminal tab, so
+# let's create a function especially for that...
+# ############################################################################
+function x-man-page {
+  open x-man-page://$1
+}
+
+# And then let's alias 'man' to it (doing this separately just so it's easier
+# to disable on hosts that don't support it or are only accessed remotely)
+alias man='x-man-page'
 
 
 # ########################
