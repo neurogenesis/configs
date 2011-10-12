@@ -26,8 +26,9 @@ export LC_TIME="en_GB.UTF-8"
 
 export TERM=xterm-256color
 CLICOLOR=1
-LSCOLORS=gxfxcxcxbxdxdxbxbxgxgx
-export LSCOLORS CLICOLOR
+LSCOLORS=gxdxcxcxbxdxdxbxbxgxgx
+LS_COLORS=LSCOLORS
+export LSCOLORS LS_COLORS CLICOLOR
 
 autoload colors
 colors
@@ -106,11 +107,8 @@ PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{$
 # (this doesn't actually work, i dunno)
 # #####################################
 
-if [ "$TERM" = "xterm-256color" ]
-then
-  bindkey '^[[H'  beginning-of-line
-  bindkey '^[[F'  end-of-line
-fi
+bindkey '^[[H'  beginning-of-line
+bindkey '^[[F'  end-of-line
 
 bindkey	"^[[3~"  delete-char
 bindkey	"^[3;5~" delete-char
@@ -132,13 +130,57 @@ alias edit=$EDITOR
 # This is fantastic compared to reading it in the current Terminal tab, so
 # let's create a function especially for that...
 # ############################################################################
-function x-man-page {
-  open x-man-page://$1
+function man {
+	# Check to see if 'open' is installed (this is Mac-specific)
+	if [[ -n `whereis open` ]]; then
+		# If there's a second argument, just return the normal man command
+		if [[ -n $2 ]]; then
+			`whereis man` $@
+		# If there's only one argument, use 'open' to raise a new window
+		else
+			open x-man-page://$1
+		fi
+	# If 'open' isn't installed, return the normal man command
+	else
+		`whereis man` $@
+	fi
 }
 
-# And then let's alias 'man' to it (doing this separately just so it's easier
-# to disable on hosts that don't support it or are only accessed remotely)
-alias man='x-man-page'
+
+# ######################################################################
+# PYWIKIPEDIABOT FUNCTIONS
+# Typing the full commands for the pywikipediabot scripts is irritating,
+# so here are some shortcuts
+# ######################################################################
+function add_text {
+	python ./add_text.py -pt:2 $@
+}
+alias addtest='add_text'
+
+function category {
+	python ./category.py -pt:2 $@
+}
+
+function image {
+	python ./image.py -pt:2 $@
+}
+
+function pagefromfile {
+	if [[ $@ == *-file* ]]; then
+		python ./pagefromfile.py -pt:2 -start:xxxx -end:yyyy -notitle $@
+	else
+		python ./pagefromfile.py -pt:2 -start:xxxx -end:yyyy -notitle -file:file1.xml $@
+	fi
+}
+alias page='pagefromfile'
+
+function replace {
+	python ./replace.py -pt:2 $@
+}
+
+function upload {
+	python ./upload.py -pt:2 -keep -noverify $@
+}
 
 
 # ########################
@@ -150,16 +192,38 @@ autoload -U compinit
 compinit
 
 # set some shit lol i dunno
-zstyle ':completion:*' completer _expand _complete _ignored
+zstyle ':completion:*' completer _complete _expand _ignored _match _approximate
+
+# max number of errors for 'approximate' matching
+zstyle ':completion:*:approximate:*' max-errors 3 numeric
 
 # case-insensitive completion
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+# zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' matcher-list 'm:{A-Z}={a-z}' 'm:{a-z}={A-Z}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
+
+# show 'completing ____' in the menu thing
+zstyle ':completion:*:descriptions' format $'%{\e[0;35m%}completing %B%d%b%{\e[0m%}'
 
 # automatically complete the first result, then cycle
 setopt MENU_COMPLETE
 
+# display a box thingie around the completion menu items
+zstyle ':completion:*' menu select=2 
+
 # complete even in the middle of words
 setopt COMPLETE_IN_WORD
+
+# correct misspelt commands
+setopt correct
+
+# this is for colours in completions
+zmodload zsh/complist
+
+# colour process IDs for 'kill' red
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+
+# colour directories for 'ls'
+zstyle ':completion:*:default' list-colors 'no=0:fi=0:di=36:ln=33:ex=31'
 
 
 # ################################################
@@ -167,3 +231,9 @@ setopt COMPLETE_IN_WORD
 # tab completion is really irritating otherwise :(
 # ################################################
 unset CDPATH
+
+
+##############
+# FOR MACPORTS
+# ############
+export PATH=/opt/local/bin:/opt/local/sbin:$PATH
