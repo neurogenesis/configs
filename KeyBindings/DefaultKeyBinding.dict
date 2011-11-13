@@ -9,13 +9,13 @@ Once a valid file is present in this location, the changes will take effect
 immediately for all Cocoa applications (some may require a restart, but most 
 in my experience do not). In practice this means that almost all common 
 applications are affected with the exception of Firefox and pre-Lion versions 
-of iTunes (the post-Lion versions are — finally — Cocoa-based). There are also 
+of iTunes (the post-Lion versions are — finally — Cocoa-based). There are also 
 a few specific areas where some functionality doesn't work; for instance, the 
 Home key doesn't work at all when renaming files in the Finder. I'm not sure  
 why, but in any case the issues are minor overall.
 
 The most notable changes included are the altered behaviour of the Home, End, 
-Page Up, and Page Down keys — specifically, they've been changed to more 
+Page Up, and Page Down keys — specifically, they've been changed to more 
 closely match the expected behaviour of other UNIX-like systems (and Windows).
 
 In addition there are several new bindings that i've added that perform 
@@ -51,6 +51,8 @@ Page Down   = \UF72D
 */
 
 {
+
+/* remapped OS X shortcuts */
 "\UF729"    = "moveToBeginningOfLine:";                        /* Home                */
 "~\UF729"   = "moveToBeginningOfDocument:";                    /* Opt + Home          */
 "$\UF729"   = "moveToBeginningOfLineAndModifySelection:";      /* Shift + Home        */
@@ -66,14 +68,19 @@ Page Down   = \UF72D
 "$\UF72C"   = "pageUpAndModifySelection:";                     /* Shift + Page Up     */
 "$\UF72D"   = "pageDownAndModifySelection:";                   /* Shift + Page Down   */
 
-
 /* UNIX-ish shortcuts */
 "^~b"       = "moveWordBackward:";                             /* Ctrl + Opt + B      */
 "^~f"       = "moveWordForward:";                              /* Ctrl + Opt + F      */
 "^~l"       = "lowercaseWord:";                                /* Ctrl + Opt + L      */
 "^~t"       = "transposeWords:";                               /* Ctrl + Opt + T      */
 "^~u"       = "uppercaseWord:";                                /* Ctrl + Opt + U      */
+"^a"        = "moveToBeginningOfLine:";                        /* Ctrl + A            */
+"^e"        = "moveToEndOfLine:";                              /* Ctrl + E            */
 "^t"        = "transpose:";                                    /* Ctrl + T            */
 "^u"        = "deleteToBeginningOfLine:";                      /* Ctrl + U            */
 "^w"        = "deleteWordBackward:";                           /* Ctrl + W            */
+
+/* misc. */
+"^v"        = "pasteAsPlainText:";                             /* Ctrl + V            */
+
 }
