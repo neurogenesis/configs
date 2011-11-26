@@ -11,6 +11,7 @@ SAVEHIST=1000
 # ####################
 
 export LANG="en_GB.UTF-8"
+export LC_ALL="en_GB.UTF-8"
 export LC_COLLATE="en_GB.UTF-8"
 export LC_CTYPE="en_GB.UTF-8"
 export LC_MESSAGES="en_GB.UTF-8"
@@ -93,13 +94,19 @@ at_normal=$'\e[0m'
 # PROMPT="%c %{${fg_red}%}%#%{${at_normal}%} "
 
 # GREEN left prompt for local
-PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
+if [[ `hostname -s` == 'kapche-lanka' ]]; then
+	PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
+fi
 
-# RED left prompt for satanism — DISABLED
-# PROMPT="%{${fg_red2}%}satanism%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_red2}%}%#%{${at_normal}%} "
+# RED left prompt for satanism
+if [[ `hostname -s` == 'ester' ]]; then
+	PROMPT="%{${fg_red2}%}satanism%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_red2}%}%#%{${at_normal}%} "
+fi
 
-# CYAN left prompt for dreamhost — DISABLED
-# PROMPT="%{${fg_cyan2}%}dreamhost%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
+# CYAN left prompt for dreamhost
+if [[ `hostname -s` == 'washingtondc' ]]; then
+	PROMPT="%{${fg_cyan2}%}dreamhost%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
+fi
 
 
 # #####################################
@@ -119,8 +126,35 @@ bindkey	"^[3;5~" delete-char
 # Let's set the default editor to TextMate,
 # and then make an alias from 'edit'
 # #########################################
-export EDITOR='mate -w'
+# On my local machine: TextMate; otherwise nano
+if [[ `hostname -s` == 'kapche-lanka' ]]; then
+	if [[ -n `whereis mate` ]]; then
+		export EDITOR='mate -w'
+	else
+		export EDITOR='nano'
+	fi
+
+# On other machines: try nano
+else
+	if [[ -n `whereis nano` ]]; then
+		export EDITOR='nano'
+	elif [[ -n `whereis pico` ]]; then
+		export EDITOR='pico'
+	elif [[ -n `whereis ee` ]]; then
+		export EDITOR='ee'
+	else
+		export EDITOR='vi'
+	fi
+fi
+
 alias edit=$EDITOR
+
+
+# ############
+# GREP COLOURS
+# ############
+alias grep="egrep --color=ALWAYS"
+alias egrep="egrep --color=ALWAYS"
 
 
 # ############################################################################
@@ -130,19 +164,44 @@ alias edit=$EDITOR
 # This is fantastic compared to reading it in the current Terminal tab, so
 # let's create a function especially for that...
 # ############################################################################
-function man {
-	# Check to see if 'open' is installed (this is Mac-specific)
-	if [[ -n `whereis open` ]]; then
-		# If there's a second argument, just return the normal man command
-		if [[ -n $2 ]]; then
-			`whereis man` $@
-		# If there's only one argument, use 'open' to raise a new window
+# I only want this on my local machine actually
+if [[ `hostname -s` == 'kapche-lanka' ]]; then
+	function man {
+		# Check to see if 'open' is installed (this is Mac-specific)
+		if [[ -n `whereis open` ]]; then
+			# If there's a second argument, just return the normal man command
+			if [[ -n $2 ]]; then
+				`whereis man` $@
+			# If there's only one argument, use 'open' to raise a new window
+			else
+				open x-man-page://$1
+			fi
+		# If 'open' isn't installed, return the normal man command
 		else
-			open x-man-page://$1
+			`whereis man` $@
 		fi
-	# If 'open' isn't installed, return the normal man command
+	}
+fi
+
+
+# ########
+# PNGCRUSH
+# ########
+function pc {
+	if [[ -n $1 ]] && [[ ! -n $2 ]]; then
+		pngdir=`dirname $1`
+		pngfile=`basename -s .png $1`
+
+		mv "$pngdir/$pngfile.png" "$pngdir/$pngfile.original.png"
+
+		if [ $? -eq 0 ]; then
+			pngcrush -rem gAMA -rem cHRM -rem iCCP -rem sRGB "$pngdir/$pngfile.original.png" "$pngdir/$pngfile.png"
+		else
+			echo "Failed to crush file."
+		fi
+
 	else
-		`whereis man` $@
+		pngcrush -rem gAMA -rem cHRM -rem iCCP -rem sRGB $@
 	fi
 }
 
@@ -190,6 +249,7 @@ function upload {
 # load some shit
 autoload -U compinit
 compinit
+zmodload zsh/complist
 
 # set some shit lol i dunno
 zstyle ':completion:*' completer _complete _expand _ignored _match _approximate
@@ -202,13 +262,16 @@ zstyle ':completion:*:approximate:*' max-errors 3 numeric
 zstyle ':completion:*' matcher-list 'm:{A-Z}={a-z}' 'm:{a-z}={A-Z}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
 
 # show 'completing ____' in the menu thing
-zstyle ':completion:*:descriptions' format $'%{\e[0;35m%}completing %B%d%b%{\e[0m%}'
+zstyle ':completion:*:descriptions' format $'%{\e[0;35m%}completing %B%d:%b%{\e[0m%}'
 
 # automatically complete the first result, then cycle
 setopt MENU_COMPLETE
 
 # display a box thingie around the completion menu items
-zstyle ':completion:*' menu select=2 
+zstyle ':completion:*' menu select=2
+
+# make it so we only have to press Return one time in the menu
+bindkey -M menuselect '^M' .accept-line
 
 # complete even in the middle of words
 setopt COMPLETE_IN_WORD
@@ -216,14 +279,65 @@ setopt COMPLETE_IN_WORD
 # correct misspelt commands
 setopt correct
 
-# this is for colours in completions
-zmodload zsh/complist
-
 # colour process IDs for 'kill' red
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 
 # colour directories for 'ls'
-zstyle ':completion:*:default' list-colors 'no=0:fi=0:di=36:ln=33:ex=31'
+zstyle ':completion:*:default' list-colors 'no=0:fi=0:di=36:ln=33:ex=31:ma=0;45'
+
+
+# ########################
+# TERMINAL RESUME FOR LION
+# Borrowed from Super User
+# ########################
+if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]] && [[ -z "$INSIDE_EMACS" ]]; then
+	update_terminal_cwd() {
+		# Identify the directory using a "file:" scheme URL, including
+		# the host name to disambiguate local vs. remote paths.
+
+		# Percent-encode the pathname.
+		local URL_PATH=''
+		{
+			# Use LANG=C to process text byte-by-byte.
+			local i ch hexch LANG=C
+			for ((i = 1; i <= ${#PWD}; ++i)); do
+				ch="$PWD[i]"
+				if [[ "$ch" =~ [/._~A-Za-z0-9-] ]]; then
+					URL_PATH+="$ch"
+				else
+					hexch=$(printf "%02X" "'$ch")
+					URL_PATH+="%$hexch"
+				fi
+			done
+		}
+
+		local PWD_URL="file://$HOST$URL_PATH"
+		printf '\e]7;%s\a' "$PWD_URL"
+	}
+
+	# Register the function so it is called whenever the working
+	# directory changes.
+	autoload add-zsh-hook
+	add-zsh-hook chpwd update_terminal_cwd
+
+	# Tell the terminal about the initial directory.
+	update_terminal_cwd
+fi
+
+
+# ###############################
+# TELNET SHORTCUT FOR SATANISM
+# (Just saves me a little typing)
+# ###############################
+if [[ `hostname -s` == 'ester' ]]; then
+	function telnet () {
+		if [[ $# -gt 1 ]]; then
+			/usr/bin/telnet "$@"
+		else
+			/usr/bin/telnet localhost 3389
+		fi
+	}
+fi
 
 
 # ################################################
@@ -236,4 +350,7 @@ unset CDPATH
 ##############
 # FOR MACPORTS
 # ############
-export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+# My local machine only
+if [[ `hostname -s` == 'kapche-lanka' ]]; then
+	export PATH=/opt/local/bin:/opt/local/sbin:/Volumes/Garga\ Falmul/Development/ginei-tools/ginei-names:$PATH
+fi
