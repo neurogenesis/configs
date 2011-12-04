@@ -26,13 +26,18 @@ export LC_TIME="en_GB.UTF-8"
 # ####################
 
 export TERM=xterm-256color
-CLICOLOR=1
-LSCOLORS=gxdxcxcxbxdxdxbxbxgxgx
-LS_COLORS=LSCOLORS
-export LSCOLORS LS_COLORS CLICOLOR
-
 autoload colors
 colors
+
+# BSD ls colours
+CLICOLOR=1
+LSCOLORS=gxdxcxcxbxdxdxbxbxgxgx
+
+# Linux/GNU ls colours
+LS_OPTIONS='--color=always '
+LS_COLORS='di=36:ln=33:so=32:pi=32:ex=31:bd=33:cd=33:su=31:sg=31:tw=36:ow=36:'
+
+export CLICOLOR LSCOLORS LS_COLORS LS_OPTIONS
 
 # foreground: normal colours
 fg_black=$'\e[0;30m'
@@ -94,17 +99,22 @@ at_normal=$'\e[0m'
 # PROMPT="%c %{${fg_red}%}%#%{${at_normal}%} "
 
 # GREEN left prompt for local
-if [[ `hostname -s` == 'kapche-lanka' ]]; then
+if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
 fi
 
+# YELLOW left prompt for router
+if [[ `uname -n` == 'iserlohn'* ]]; then
+	PROMPT="%{${fg_yellow2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_yellow2}%}%#%{${at_normal}%} "
+fi
+
 # RED left prompt for satanism
-if [[ `hostname -s` == 'ester' ]]; then
+if [[ `uname -n` == 'ester'* ]]; then
 	PROMPT="%{${fg_red2}%}satanism%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_red2}%}%#%{${at_normal}%} "
 fi
 
 # CYAN left prompt for dreamhost
-if [[ `hostname -s` == 'washingtondc' ]]; then
+if [[ `uname -n` == 'washingtondc'* ]]; then
 	PROMPT="%{${fg_cyan2}%}dreamhost%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
 fi
 
@@ -127,8 +137,8 @@ bindkey	"^[3;5~" delete-char
 # and then make an alias from 'edit'
 # #########################################
 # On my local machine: TextMate; otherwise nano
-if [[ `hostname -s` == 'kapche-lanka' ]]; then
-	if [[ -n `whereis mate` ]]; then
+if [[ `uname -n` == 'kapche-lanka'* ]]; then
+	if [[ -n `which mate` ]]; then
 		export EDITOR='mate -w'
 	else
 		export EDITOR='nano'
@@ -136,11 +146,11 @@ if [[ `hostname -s` == 'kapche-lanka' ]]; then
 
 # On other machines: try nano
 else
-	if [[ -n `whereis nano` ]]; then
+	if [[ -n `which nano` ]]; then
 		export EDITOR='nano'
-	elif [[ -n `whereis pico` ]]; then
+	elif [[ -n `which pico` ]]; then
 		export EDITOR='pico'
-	elif [[ -n `whereis ee` ]]; then
+	elif [[ -n `which ee` ]]; then
 		export EDITOR='ee'
 	else
 		export EDITOR='vi'
@@ -153,8 +163,10 @@ alias edit=$EDITOR
 # ############
 # GREP COLOURS
 # ############
-alias grep="egrep --color=ALWAYS"
-alias egrep="egrep --color=ALWAYS"
+if [[ `uname -n` != 'iserlohn'* ]]; then
+	alias grep="egrep --color=ALWAYS"
+	alias egrep="egrep --color=ALWAYS"
+fi
 
 
 # ############################################################################
@@ -165,20 +177,20 @@ alias egrep="egrep --color=ALWAYS"
 # let's create a function especially for that...
 # ############################################################################
 # I only want this on my local machine actually
-if [[ `hostname -s` == 'kapche-lanka' ]]; then
+if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	function man {
 		# Check to see if 'open' is installed (this is Mac-specific)
-		if [[ -n `whereis open` ]]; then
+		if [[ -n `which open` ]]; then
 			# If there's a second argument, just return the normal man command
 			if [[ -n $2 ]]; then
-				`whereis man` $@
+				`which man` $@
 			# If there's only one argument, use 'open' to raise a new window
 			else
 				open x-man-page://$1
 			fi
 		# If 'open' isn't installed, return the normal man command
 		else
-			`whereis man` $@
+			`which man` $@
 		fi
 	}
 fi
@@ -187,23 +199,27 @@ fi
 # ########
 # PNGCRUSH
 # ########
-function pc {
-	if [[ -n $1 ]] && [[ ! -n $2 ]]; then
-		pngdir=`dirname $1`
-		pngfile=`basename -s .png $1`
+# I only want this on my local machine actually
+if [[ `uname -n` == 'kapche-lanka'* ]]; then
+	function pc {
+		if [[ -n $1 ]] && [[ ! -n $2 ]]; then
+			pngdir=`dirname $1`
+			pngfile=`basename -s .png $1`
 
-		mv "$pngdir/$pngfile.png" "$pngdir/$pngfile.original.png"
+			mv "$pngdir/$pngfile.png" "$pngdir/$pngfile.original.png"
 
-		if [ $? -eq 0 ]; then
-			pngcrush -rem gAMA -rem cHRM -rem iCCP -rem sRGB "$pngdir/$pngfile.original.png" "$pngdir/$pngfile.png"
+			if [ $? -eq 0 ]; then
+				pngcrush -rem gAMA -rem cHRM -rem iCCP -rem sRGB \
+				  "$pngdir/$pngfile.original.png" "$pngdir/$pngfile.png"
+			else
+				echo "Failed to crush file."
+			fi
+
 		else
-			echo "Failed to crush file."
+			pngcrush -rem gAMA -rem cHRM -rem iCCP -rem sRGB $@
 		fi
-
-	else
-		pngcrush -rem gAMA -rem cHRM -rem iCCP -rem sRGB $@
-	fi
-}
+	}
+fi
 
 
 # ######################################################################
@@ -211,35 +227,38 @@ function pc {
 # Typing the full commands for the pywikipediabot scripts is irritating,
 # so here are some shortcuts
 # ######################################################################
-function add_text {
-	python ./add_text.py -pt:2 $@
-}
-alias addtest='add_text'
+# I only want this on my local machine actually
+if [[ `uname -n` == 'kapche-lanka'* ]]; then
+	function add_text {
+		python ./add_text.py -pt:2 $@
+	}
+	alias addtest='add_text'
 
-function category {
-	python ./category.py -pt:2 $@
-}
+	function category {
+		python ./category.py -pt:2 $@
+	}
 
-function image {
-	python ./image.py -pt:2 $@
-}
+	function image {
+		python ./image.py -pt:2 $@
+	}
 
-function pagefromfile {
-	if [[ $@ == *-file* ]]; then
-		python ./pagefromfile.py -pt:2 -start:xxxx -end:yyyy -notitle $@
-	else
-		python ./pagefromfile.py -pt:2 -start:xxxx -end:yyyy -notitle -file:file1.xml $@
-	fi
-}
-alias page='pagefromfile'
+	function pagefromfile {
+		if [[ $@ == *-file* ]]; then
+			python ./pagefromfile.py -pt:2 -start:xxxx -end:yyyy -notitle $@
+		else
+			python ./pagefromfile.py -pt:2 -start:xxxx -end:yyyy -notitle -file:file1.xml $@
+		fi
+	}
+	alias page='pagefromfile'
 
-function replace {
-	python ./replace.py -pt:2 $@
-}
+	function replace {
+		python ./replace.py -pt:2 $@
+	}
 
-function upload {
-	python ./upload.py -pt:2 -keep -noverify $@
-}
+	function upload {
+		python ./upload.py -pt:2 -keep -noverify $@
+	}
+fi
 
 
 # ########################
@@ -329,7 +348,7 @@ fi
 # TELNET SHORTCUT FOR SATANISM
 # (Just saves me a little typing)
 # ###############################
-if [[ `hostname -s` == 'ester' ]]; then
+if [[ `uname -n` == 'ester'* ]]; then
 	function telnet () {
 		if [[ $# -gt 1 ]]; then
 			/usr/bin/telnet "$@"
@@ -347,10 +366,27 @@ fi
 unset CDPATH
 
 
-##############
+# ############
 # FOR MACPORTS
 # ############
 # My local machine only
-if [[ `hostname -s` == 'kapche-lanka' ]]; then
+if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	export PATH=/opt/local/bin:/opt/local/sbin:/Volumes/Garga\ Falmul/Development/ginei-tools/ginei-names:$PATH
 fi
+
+
+# ############
+# FOR ISERLOHN
+# ############
+# Set up ls colours
+# We need to prefer the (coreutils) ls in /opt/bin if it's there,
+# since the busybox ls is stupid
+if [[ `uname -n` == 'iserlohn'* ]]; then
+	if [[ -n /opt/bin/ls ]]; then
+		alias ls='/opt/bin/ls --color=always'
+	else
+		alias ls='ls --color=always'
+	fi
+fi
+
+
