@@ -3,7 +3,7 @@
 This file modifies a user's default key bindings under Mac OS X. It should be 
 placed in the following location for each user whose bindings will be affected:
 
-~/Library/KeyBindings/DefaultKeyBinding.Dict
+~/Library/KeyBindings/DefaultKeyBinding.dict
 
 Once a valid file is present in this location, the changes will take effect 
 immediately for all Cocoa applications (some may require a restart, but most 
