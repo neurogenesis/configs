@@ -86,37 +86,48 @@ at_normal=$'\e[0m'
 # SET PROMPTS
 # ###########
 
-# right prompt: time — DISABLED
-# RPROMPT="%{${fg_grey}%}^%D{%H:%M:%S}%{${at_normal}%}"
-
-# left prompt: bash style (no colour) — DISABLED
-# PROMPT="%m:%c %n$ "
-
-# left prompt: bash style (with colour) — DISABLED
-# PROMPT="%{${fg_grey}%}%m%{${at_normal}%}:%{${fg_cyan}%}%c %{${fg_grey}%}%n%{${fg_red}%}$%{${at_normal}%} "
-
-# left prompt: — DISABLED
-# PROMPT="%c %{${fg_red}%}%#%{${at_normal}%} "
+# These are all like this:
+# host:dir %
 
 # GREEN left prompt for local
 if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
 fi
 
-# YELLOW left prompt for router
+# GREEN left prompt for rondolina
+if [[ `uname -n` == 'rondolina'* ]]; then
+	PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
+fi
+
+# YELLOW left prompt for iserlohn (router)
 if [[ `uname -n` == 'iserlohn'* ]]; then
 	PROMPT="%{${fg_yellow2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_yellow2}%}%#%{${at_normal}%} "
 fi
 
-# RED left prompt for satanism
+# RED left prompt for satanism (eggdrop)
 if [[ `uname -n` == 'ester'* ]]; then
 	PROMPT="%{${fg_red2}%}satanism%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_red2}%}%#%{${at_normal}%} "
+fi
+
+# CYAN left prompt for odin (linode)
+if [[ `uname -n` == 'odin'* ]]; then
+	PROMPT="%{${fg_cyan2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
 fi
 
 # CYAN left prompt for dreamhost
 if [[ `uname -n` == 'washingtondc'* ]]; then
 	PROMPT="%{${fg_cyan2}%}dreamhost%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
 fi
+
+
+# ################################################
+# UPDATE TERMINAL TITLE
+# Update the tab title before each prompt is shown
+# ################################################
+precmd() {
+	# host:directory
+	print -Pn "\e]0;%m:%c\a"
+}
 
 
 # #####################################
@@ -131,22 +142,34 @@ bindkey	"^[[3~"  delete-char
 bindkey	"^[3;5~" delete-char
 
 
+# #############
+# MISC. ALIASES
+# #############
+# Too lazy to type out the full source command
+alias reload="source ~/.zshrc"
+
+# Make sudo respect aliases
+alias sudo='sudo '
+
+
 # #########################################
 # SET EDITOR
 # Let's set the default editor to TextMate,
 # and then make an alias from 'edit'
 # #########################################
-# On my local machine: TextMate; otherwise nano
+# On my local machine: TextMate; otherwise vim
 if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	if [[ -n `which mate` ]]; then
 		export EDITOR='mate -w'
 	else
-		export EDITOR='nano'
+		export EDITOR='vim'
 	fi
 
-# On other machines: try nano
+# On other machines: try vim
 else
-	if [[ -n `which nano` ]]; then
+	if [[ -n `which vim` ]]; then
+		export EDITOR='vim'
+	elif [[ -n `which nano` ]]; then
 		export EDITOR='nano'
 	elif [[ -n `which pico` ]]; then
 		export EDITOR='pico'
@@ -177,7 +200,7 @@ fi
 # let's create a function especially for that...
 # ############################################################################
 # I only want this on my local machine actually
-if [[ `uname -n` == 'kapche-lanka'* ]]; then
+if [[ `uname -n` == 'kapche-lanka'* ]] || [[ `uname -n` == 'rondolina'* ]]; then
 	function man {
 		# Check to see if 'open' is installed (this is Mac-specific)
 		if [[ -n `which open` ]]; then
@@ -199,6 +222,7 @@ fi
 # ########
 # PNGCRUSH
 # ########
+
 # I only want this on my local machine actually
 if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	function pc {
@@ -227,6 +251,7 @@ fi
 # Typing the full commands for the pywikipediabot scripts is irritating,
 # so here are some shortcuts
 # ######################################################################
+
 # I only want this on my local machine actually
 if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	function add_text {
@@ -259,6 +284,28 @@ if [[ `uname -n` == 'kapche-lanka'* ]]; then
 		python ./upload.py -pt:2 -keep -noverify $@
 	}
 fi
+
+
+# ######################
+# ASSGREP
+# for greping asses, lol
+# ######################
+function assgrep {
+	# No colour for now :(
+	grep --color=NEVER -i $@ | \
+	perl -pe 's/.*(\(null\),[0-9]{4},[0-9]{4}|D,[0-9]{4},[0-9]{4}).*\n//g' | \
+	perl -pe 's/.*\.ass:Format:.*\n//g' | \
+	perl -pe 's/.*TITLE:.*Legend of Galactic Heroes.*\n//g' | \
+	perl -pe 's/^LOGH Episode ([0-9]+).+?\.ass./Episode $1 \.ass:/g' | \
+	perl -pe 's/(^|\.ass:)(Dialogue|Command|Comment): //' | \
+	perl -pe 's/^Overture to a New War\.ass:(Dialogue|Command|Comment): /ONW: /g' | \
+	perl -pe 's/0,([0-9]+:[0-9]+:[0-9]+)\.[0-9]+,([0-9]+:[0-9]+:[0-9]+\.[0-9]+),(def2|mactitle),(\.)*/$1 /g' | \
+	perl -pe 's/{\\c&.*?&.*?}//g' | \
+	perl -pe 's/(\.){0,4},[0-9]{4},[0-9]{4},[0-9]{4},,/ /g' | \
+	perl -pe 's/Comment,[0-9]{4},[0-9]{4},[0-9]{4},,/COMMENT: /g' | \
+	perl -pe 's/{\\a[0-9]}//g' | \
+	perl -pe 's/\\N/ /g'
+}
 
 
 # ########################
@@ -387,6 +434,15 @@ if [[ `uname -n` == 'iserlohn'* ]]; then
 	else
 		alias ls='ls --color=always'
 	fi
+fi
+
+
+# ########
+# FOR ODIN
+# ########
+# Doesn't take ls_options for some reason, too lazy to figure out why
+if [[ `uname -n` == 'odin'* ]]; then
+    alias ls='ls --color=always'
 fi
 
 
