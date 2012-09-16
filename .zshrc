@@ -192,6 +192,55 @@ if [[ `uname -n` != 'iserlohn'* ]]; then
 fi
 
 
+# ################################################
+# CONFIG-COPY
+# Copies config files to my other machines via scp
+# (This is very lazy and relies on ssh aliases)
+# ################################################
+function config-copy {
+	# Make sure there are two arguments
+	if [[ -n $2 ]]; then
+		case "$2" in
+			zshrc|.zshrc)
+				configfile="$HOME/.zshrc"
+				;;
+			vimrc|.vimrc)
+				configfile="$HOME/.vimrc"
+				;;
+			*)
+				# Assume .zshrc by default
+				configfile="$HOME/.zshrc"
+				;;
+		esac
+
+		case "$1" in
+			kapche*)
+				scp $configfile kine@kapche-lanka:/Users/kine
+				;;
+			rondo*)
+				scp $configfile kine@rondolina:/Users/kine
+				;;
+			iser*)
+				scp $configfile root@iserlohn:/root
+				;;
+			odin)
+				scp $configfile kine@odin:/home/kine
+				;;
+			git|github|dev|development)
+				cp $configfile ~/Development/configs
+				;;
+			*)
+				echo "Host not recognised."
+				;;
+		esac
+	fi
+}
+
+alias copy-config="config-copy"
+alias cp-config="config-copy"
+alias config-cp="config-copy"
+
+
 # ############################################################################
 # X-MAN-PAGE
 # Opening links using the URI scheme x-man-page://command will open the
