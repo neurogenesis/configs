@@ -201,10 +201,10 @@ function config-copy {
 	# Make sure there are two arguments
 	if [[ -n $2 ]]; then
 		case "$2" in
-			zshrc|.zshrc)
+			zsh|zshrc|.zshrc)
 				configfile="$HOME/.zshrc"
 				;;
-			vimrc|.vimrc)
+			vim|vimrc|.vimrc)
 				configfile="$HOME/.vimrc"
 				;;
 			*)
