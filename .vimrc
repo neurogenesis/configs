@@ -53,7 +53,7 @@ set timeoutlen=350
 set history=500
 
 " Auto-update files when they've been changed by other applications
-set autoread
+" set autoread
 
 " Use UTF-8 encoding by default
 set encoding=utf8
@@ -75,6 +75,183 @@ syntax enable
 
 " Use Monokai colour scheme
 colorscheme Monokai
+
+
+" =============================================================================
+" FUNCTIONS
+" =============================================================================
+
+" Return the edit mode for the status line
+function! EditMode()
+    let m = mode()
+
+    if (m == 'n')
+        return 'NORMAL'
+    elseif (m == 'i')
+        return 'INSERT'
+    elseif (m == 'v') || (m == 'V') || (m == '')
+        return 'VISUAL'
+    elseif (m == 'R')
+        return 'REPLACE'
+    elseif (m == 'no')
+        return 'PENDING'
+    elseif (m == 'c')
+        return 'COMMAND'
+    endif
+endfunction
+
+" Return the host name (hostname() returns the FQDN)
+function! HostName()
+	let hn = substitute(system("hostname -s"), "\n", "", "")
+	return hn
+endfunction
+
+" Return the file name for the status line
+function! FileName()
+	if (expand('%:t') == '')
+		return '-'
+	else
+		return expand('%:t')
+	endif
+endfunction
+
+" Return the 'modified' icon for the status line
+" (i don't care about 'modifiable')
+function! Modified()
+	if (&modified == 0)
+		return ''
+	else
+		return ' ●'
+	endif
+endfunction
+
+" Format line endings and file encoding for the status line
+" (only display the endings/encoding if it's NOT unix:utf-8)
+function! FileInfo(ff, fe)
+    let fl = ''
+
+    if (a:ff != 'unix') || (a:fe != 'utf-8')
+        let fl .= ' ('
+    endif
+
+    if (a:ff == 'dos')
+        let fl .= 'LF'
+    elseif (a:ff == 'mac')
+        let fl .= 'CR'
+    endif
+
+    if (a:ff != 'unix') && (a:fe != 'utf-8')
+        let fl .= ' / '
+    endif
+
+    if (a:fe != 'utf-8')
+        let fl .= a:fe
+    endif
+
+    if (a:ff != 'unix') || (a:fe != 'utf-8')
+        let fl .= ')'
+    endif
+
+    " Do nothing if the file is empty
+    if (a:ff == 'unix') && (a:fe == '')
+        let fl = ''
+    endif
+
+    return fl
+endfunction
+ 
+" Return the percentage through the file
+" (basically this re-implements %P with symbols instead of All/Top/Bot)
+function! Percentage()
+	" Entire file is visible ('All' in %P)
+	if (line("w0") == 1) && (line("w$") == line("$"))
+		return '  ∞'
+	" Beginning of file is visible ('Top' in %P)
+	elseif (line("w0") == 1)
+		return '  ⤒'
+	" End of file is visible ('Bot' in %P)
+	elseif (line("w$") == line("$"))
+		return '  ⤓'
+	" Anything else (nn% in %P)
+	else
+		let pos  = line(".") + 1 - 1
+		let size = line("$") + 1 - 1
+
+		let pcnt = (pos * 100) / size
+
+		if (pcnt < 10)
+			return ' ' . pcnt . '%'
+		else
+			return '' . pcnt . '%'
+		endif
+	endif
+endfunction
+
+" Return battery charge level
+" (requires batcharge.py in PATH)
+function! BatteryCharge(ct, last)
+	" Always run once at start-up
+	if (a:ct == 0)
+		let g:batlast = system("batcharge.py 2>/dev/null")
+		let g:batcheck = strftime("%s")
+		return g:batlast . ' strf: ' . g:batcheck . ' / lastch: ' . a:ct
+
+	" If it's been less than 2 minutes, return the last value
+	elseif ((strftime("%s") - a:ct) < 120)
+		return a:last
+
+	" Otherwise, continue and update the last run time
+	else
+		let g:batlast = system("batcharge.py 2>/dev/null")
+		let g:batcheck = strftime("%s")
+		return g:batlast
+	endif
+endfunction
+
+" Emulate nano's Ctrl+X feature
+function! NanoClose()
+	" If the file hasn't been modified, exit immediately
+	if (&modified == 0)
+		:q
+
+	" If the file has been modified, prompt
+	else
+		call inputsave()
+		echohl NanoMsg
+		let yesno = tolower(input('Save modified buffer (ANSWERING "No" WILL DESTROY CHANGES) ? '))
+		echohl None
+		call inputrestore()
+
+		" Yes => exit and save
+		if (yesno == 'yes') || (yesno == 'y')
+			:wq
+			echo '^x — Saved and closed buffer.'
+		" No => exit without saving
+		elseif (yesno == 'no') || (yesno == 'n')
+			:q!
+			echo '^x — Closed buffer without saving.'
+		" Cancel => do nothing
+		else
+			echo ''
+		endif
+	endif
+endfunction
+
+
+" =============================================================================
+" VARIABLES
+" =============================================================================
+
+" Get the current host name. Since this will amost never change during a 
+" session, it's wasteful to keep calling the function over and over 
+let hostname = HostName()
+
+" This variable will limit the frequency of calls to the battery-charge script.
+" Setting it to 0 here ensures that it's run once at start-up
+let batcheck = 0
+
+" This will be used by the battery script also
+let batlast = ''
 
 
 " =============================================================================
@@ -145,27 +322,27 @@ set laststatus=2
 
 " Set up the status line
 set statusline=\ 
-set statusline+=%{EditMode()}‣\ \              " Edit mode
-set statusline+=%{HostName()}:                 " Host name
-set statusline+=%{FileName()}                  " File name
-set statusline+=%{Modified()}\                 " Modified flag
-set statusline+=%{FileInfo(&ff,&fenc)}\        " Line endings
-set statusline+=%=                             " Right-align
-set statusline+=%l:%c\                         " Current line:column
-set statusline+=(%L:%{strlen(getline('.'))})\  " Total lines:columns
-set statusline+=%{Percentage()}\               " Percentage
-" set statusline+=%P\                            " Percentage
+set statusline+=%{EditMode()}‣\ \                     " Edit mode
 
-" symbols:  ●  ║  │  ⑊ 
+if (system("which batcharge.py") != 'batcharge.py not found')
+	set statusline+=%{BatteryCharge(batcheck,batlast)}\   " Battery charge
+endif
+
+set statusline+=%{hostname}:                          " Host name
+set statusline+=%{FileName()}                         " File name
+set statusline+=%{Modified()}\                        " Modified flag
+set statusline+=%{FileInfo(&ff,&fenc)}\               " Line endings
+set statusline+=%=                                    " Right-align
+set statusline+=%l:%c\                                " Current line:column
+set statusline+=(%L:%{strlen(getline('.'))})\         " Total lines:columns
+set statusline+=%{Percentage()}\                      " Percentage
 
 " Colour the status line
 hi statusline ctermfg=3 ctermbg=0
 
 " Change the status line colour in INSERT mode
-if version >= 700
-	au InsertEnter * hi statusline ctermfg=2 ctermbg=0
-	au InsertLeave * hi statusline ctermfg=3 ctermbg=0
-endif
+au InsertEnter * hi statusline ctermfg=2 ctermbg=0
+au InsertLeave * hi statusline ctermfg=3 ctermbg=0
 
 
 " =============================================================================
@@ -208,16 +385,17 @@ nnoremap <leader>s :new<CR>:echo ',s — Horizontal split with new file'<CR>
 " ,S => Open horizontal split with existing file
 nnoremap <leader>S :split<CR>:echo ',S — Horizontal split with existing file'<CR>
 
+
 " =============================================================================
 " KEY BINDINGS
 " =============================================================================
 
 " Make Ctrl+X behave like in nano
-map <C-x>   :call NanoClose()<CR>
+map  <C-x>  :call NanoClose()<CR>
 imap <C-x>  <C-o>:call NanoClose()<CR>
 
 " Make left/right arrows go up and down lines
-set whichwrap+=<,>,[,]
+set whichwrap+=<,>,[,],h,l
 
 " Make ; behave like : in normal mode
 nnoremap ; :
@@ -239,18 +417,18 @@ set <F13>=[A
 set <F14>=[B
 
 " Make Ctrl+arrows navigate split windows
-map <C-Left>    <C-w>h
-map <C-Right>   <C-w>l
-map <F13>       <C-w>k
-map <F14>       <C-w>j
+map  <C-Left>   <C-w>h
+map  <C-Right>  <C-w>l
+map  <F13>      <C-w>k
+map  <F14>      <C-w>j
 imap <C-Left>   <C-o><C-w>h
 imap <C-Right>  <C-o><C-w>l
 imap <F13>      <C-o><C-w>k
 imap <F14>      <C-o><C-w>j
 
 " Fix Ctrl+A and Ctrl+E
-map <C-a>   ^
-map <C-e>   $
+map  <C-a>  ^
+map  <C-e>  $
 imap <C-a>  <Esc>^i
 imap <C-e>  <Esc>$a
 cmap <C-a>  <C-b>
@@ -259,162 +437,32 @@ cmap <C-a>  <C-b>
 imap <C-k>  <Esc>ddi
 
 " Fix Home and End
-map <Home>   ^
-map <End>    $
+map  <Home>  ^
+map  <End>   $
 imap <Home>  <Esc>^i
 imap <End>   <Esc>$a
 cmap <Home>  <C-b>
 cmap <End>   <C-e>
 
 " Fix PageUp and PageDown
-map <PageUp>     <C-u>
-map <PageDown>   <C-d>
+map  <PageUp>    <C-u>
+map  <PageDown>  <C-d>
 imap <PageUp>    <C-o><C-u>
 imap <PageDown>  <C-o><C-d>
+
+" Fix Option+arrows
+map  <Esc>b  b
+map  <Esc>f  e
+imap <Esc>b  <Esc>bi
+imap <Esc>f  <Esc>ea
 
 " Don't reset the cursor column
 set nostartofline
 
 
 " =============================================================================
-" FUNCTIONS
+" AUTO-COMMANDS / MISC.
 " =============================================================================
-
-" Return the edit mode for the status line
-function! EditMode()
-    let m = mode()
-
-    if (m == 'n')
-        return 'NORMAL'
-    elseif (m == 'i')
-        return 'INSERT'
-    elseif (m == 'v') || (m == 'V') || (m == '')
-        return 'VISUAL'
-    elseif (m == 'R')
-        return 'REPLACE'
-    elseif (m == 'no')
-        return 'PENDING'
-    elseif (m == 'c')
-        return 'COMMAND'
-    endif
-endfunction
-
-" Return the host name (hostname() returns the FQDN)
-function! HostName()
-	let hn = substitute(system("hostname -s"), "\n", "", "")
-	return hn
-endfunction
-
-" Return the file name for the status line
-function! FileName()
-	if (expand('%:t') == '')
-		return '-'
-	else
-		return expand('%:t')
-	endif
-endfunction
-
-" Return the modified icon for the status line
-" (i don't care about 'modifiable')
-function! Modified()
-	if (&modified == 0)
-		return ''
-	else
-		return ' ●'
-	endif
-endfunction
-
-" Format line endings and file encoding for the status line
-" (only display the endings/encoding if it's NOT unix:utf-8)
-function! FileInfo(ff, fe)
-    let fl = ''
-
-    if (a:ff != 'unix') || (a:fe != 'utf-8')
-        let fl .= ' ('
-    endif
-
-    if (a:ff == 'dos')
-        let fl .= 'LF'
-    elseif (a:ff == 'mac')
-        let fl .= 'CR'
-    endif
-
-    if (a:ff != 'unix') && (a:fe != 'utf-8')
-        let fl .= ' / '
-    endif
-
-    if (a:fe != 'utf-8')
-        let fl .= a:fe
-    endif
-
-    if (a:ff != 'unix') || (a:fe != 'utf-8')
-        let fl .= ')'
-    endif
-
-    " Do nothing if the file is empty
-    if (a:ff == 'unix') && (a:fe == '')
-        let fl = ''
-    endif
-
-    return fl
-endfunction
- 
-" Return the percentage through the file
-" (basically this re-implements %P with symbols instead of All/Top/Bot)
-function! Percentage()
-	" Entire file is visible ('All' in %P)
-	if (line("w0") == 1) && (line("w0") == line("w$"))
-		return '  ∞'
-	" Beginning of file is visible ('Top' in %P)
-	elseif (line("w0") == 1)
-		return '  ⤒'
-	" End of file is visible ('Bot' in %P)
-	elseif (line("w$") == line("$"))
-		return '  ⤓'
-	" Anything else (nn% in %P)
-	else
-		let pos  = line(".") + 1 - 1
-		let size = line("$") + 1 - 1
-
-		let pcnt = (pos * 100) / size
-
-		if (pcnt < 10)
-			return ' ' . pcnt . '%'
-		else
-			return '' . pcnt . '%'
-		endif
-	endif
-endfunction
-
-" Emulate nano's Ctrl+X feature
-function! NanoClose()
-	" If the file hasn't been modified, exit immediately
-	if (&modified == 0)
-		:q
-
-	" If the file has been modified, prompt
-	else
-		call inputsave()
-		echohl NanoMsg
-		let yesno = tolower(input('Save modified buffer (ANSWERING "No" WILL DESTROY CHANGES) ? '))
-		echohl None
-		call inputrestore()
-
-		" Yes => exit and save
-		if (yesno == 'yes') || (yesno == 'y')
-			:wq
-			echo 'Saved and closed buffer'
-		" No => exit without saving
-		elseif (yesno == 'no') || (yesno == 'n')
-			:q!
-			echo 'Closed buffer without saving'
-		" Cancel => do nothing
-		else
-			echo ''
-		endif
-	endif
-endfunction
-
 
 " Automatically reload .vimrc after editing
 au! BufWritePost .vimrc so %
@@ -425,7 +473,7 @@ au VimResized * exe "normal! \<C-w>="
 
 
 " Update the terminal title
-autocmd BufEnter * let &titlestring = HostName() . ":vim:" . substitute(expand("%:t"),"^$","-","")
+au BufEnter * let &titlestring = hostname . ":vim:" . substitute(expand("%:t"),"^$","-","")
 
 if (&term == "screen")
 	set t_ts=k
