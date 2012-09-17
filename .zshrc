@@ -198,8 +198,8 @@ fi
 # (This is very lazy and relies on ssh aliases)
 # ################################################
 function config-copy {
-	# Make sure there are two arguments
-	if [[ -n $2 ]]; then
+	# Make sure there is at least one argument
+	if [[ -n $1 ]]; then
 		case "$2" in
 			zsh|zshrc|.zshrc)
 				configfile="$HOME/.zshrc"
