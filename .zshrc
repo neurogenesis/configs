@@ -200,12 +200,18 @@ fi
 function config-copy {
 	# Make sure there is at least one argument
 	if [[ -n $1 ]]; then
+		destination=""
+
 		case "$2" in
 			zsh|zshrc|.zshrc)
 				configfile="$HOME/.zshrc"
 				;;
 			vim|vimrc|.vimrc)
 				configfile="$HOME/.vimrc"
+				;;
+			colors|colours|monok*)
+				configfile="$HOME/.vim/colors/Monokai-mod.vim"
+				destination="/.vim/colors"
 				;;
 			*)
 				# Assume .zshrc by default
@@ -215,19 +221,19 @@ function config-copy {
 
 		case "$1" in
 			kapche*)
-				scp $configfile kine@kapche-lanka:/Users/kine
+				scp $configfile kine@kapche-lanka:/Users/kine$destination
 				;;
 			rondo*)
-				scp $configfile kine@rondolina:/Users/kine
+				scp $configfile kine@rondolina:/Users/kine$destination
 				;;
 			iser*)
-				scp $configfile root@iserlohn:/root
+				scp $configfile root@iserlohn:/root$destination
 				;;
 			odin)
-				scp $configfile kine@odin:/home/kine
+				scp $configfile kine@odin:/home/kine$destination
 				;;
 			git|github|dev|development)
-				cp $configfile ~/Development/configs
+				cp $configfile ~/Development/configs$destination
 				;;
 			*)
 				echo "Host not recognised."
