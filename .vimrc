@@ -73,8 +73,37 @@ set splitright splitbelow
 " Enable syntax highlighting
 syntax enable
 
-" Use Monokai colour scheme
-colorscheme Monokai
+" Use dark background
+set background=dark
+
+" Use Monokai-mod colour scheme
+colorscheme Monokai-mod
+
+
+" =============================================================================
+" GUI (GVIM/MACVIM) SETTINGS
+" =============================================================================
+
+if has('gui_running')
+	" GUI font
+	set guifont=Andale\ Mono:h12
+
+	" Disable antialiasing in MacVim
+	if (exists('+antialias'))
+		set noantialias
+	endif
+
+	" Hide tool bar
+	set guioptions-=T
+
+	" Hide scroll bars
+	set guioptions-=L
+
+	" Use Mac-like Shift-selection in MacVim
+	if (has('gui_macvim'))
+		let macvim_hig_shift_movement = 1
+	endif
+endif
 
 
 " =============================================================================
@@ -100,9 +129,11 @@ function! EditMode()
     endif
 endfunction
 
-" Return the host name (hostname() returns the FQDN)
+" Return the host name for the status line, &c.
+" (The normal hostname() returns an FQDN, at least on my Mac)
 function! HostName()
-	let hn = substitute(system("hostname -s"), "\n", "", "")
+	" (On Windows, `hostname -s` isn't supported, but it works anyway, so w/e)
+	let hn = substitute(system("hostname -s"), "\n", "", "g")
 	return hn
 endfunction
 
@@ -135,16 +166,16 @@ function! FileInfo(ff, fe)
     endif
 
     if (a:ff == 'dos')
-        let fl .= 'LF'
+        let fl .= 'CRLF'
     elseif (a:ff == 'mac')
         let fl .= 'CR'
     endif
 
-    if (a:ff != 'unix') && (a:fe != 'utf-8')
+    if (a:ff != 'unix') && (a:fe != 'utf-8') && (a:fe != '')
         let fl .= ' / '
     endif
 
-    if (a:fe != 'utf-8')
+    if (a:fe != 'utf-8') && (a:fe != '')
         let fl .= a:fe
     endif
 
@@ -168,10 +199,20 @@ function! Percentage()
 		return '  ∞'
 	" Beginning of file is visible ('Top' in %P)
 	elseif (line("w0") == 1)
-		return '  ⤒'
+		" Up-arrow thing doesn't work in Windows...
+		if (has('unix'))
+			return '  ⤒'
+		else
+			return '  t'
+		endif
 	" End of file is visible ('Bot' in %P)
 	elseif (line("w$") == line("$"))
-		return '  ⤓'
+		" Down-arrow thing doesn't work in Windows...
+		if (has('unix'))
+			return '  ⤓'
+		else
+			return '  b'
+		endif
 	" Anything else (nn% in %P)
 	else
 		let pos  = line(".") + 1 - 1
@@ -268,64 +309,43 @@ let batlast = ''
 " 6: cyan       14: bright cyan
 " 7: white      15: bright white
 
-" User colours
-hi User1 cterm=none ctermfg=5 ctermbg=2
-hi User2 cterm=none ctermfg=1 ctermbg=0
-
 " Set command-bar height to 1 line
 set cmdheight=1
 
-" Colour empty-line tildes
-" hi NonText ctermfg=1
-
 " White-space characters (don't display by default)
 set nolist
-set listchars=nbsp:∙,tab:‣\ ,eol:¬
-
-" Colour white-space characters
-hi NonText cterm=none ctermfg=234 ctermbg=NONE
-hi SpecialKey cterm=none ctermfg=234 ctermbg=NONE
-
-" Display the characters only in normal mode — disabled, see leader section
-" if version >= 700
-" 	au InsertEnter * set nolist
-" 	au InsertLeave * set list
-" endif
+set listchars=trail:▫,nbsp:▫,tab:‣\ ,eol:¬
 
 " Display line numbers
 set nu
 
-" Colour the line numbers
-hi LineNr ctermfg=236 ctermbg=0
-
 " Highlight the current line
 set cursorline
-
-" Colour the current line
-hi CursorLine cterm=none ctermbg=236
 
 " Highlight search results
 set hlsearch
 
-" Colour search results
-hi IncSearch cterm=none ctermfg=233 ctermbg=3
-hi Search cterm=none ctermfg=3 ctermbg=235
+" Command-bar query colour (used with NanoClose(), &c.)
+hi NanoMsg ctermfg=1    ctermbg=NONE cterm=NONE guifg=#ee274d guibg=NONE gui=NONE
 
-" Command-bar query colour
-hi NanoMsg cterm=none ctermfg=1 ctermbg=NONE
 
-" -----------
-" status line
-" -----------
 " Always show the status line
 set laststatus=2
 
 " Set up the status line
 set statusline=\ 
-set statusline+=%{EditMode()}‣\ \                     " Edit mode
 
-if (system("which batcharge.py") != 'batcharge.py not found')
-	set statusline+=%{BatteryCharge(batcheck,batlast)}\   " Battery charge
+" Edit mode
+if (has('unix')) 
+	set statusline+=%{EditMode()}‣\ \ 
+else
+	" The triangle thing doesn't work on Windows...
+	set statusline+=%{EditMode()}:\ \ 
+endif
+
+" Battery charge — requires batcharge.py
+if (has('unix')) && (system("which batcharge.py") != 'batcharge.py not found')
+	set statusline+=%{BatteryCharge(batcheck,batlast)}\ 
 endif
 
 set statusline+=%{hostname}:                          " Host name
@@ -337,12 +357,9 @@ set statusline+=%l:%c\                                " Current line:column
 set statusline+=(%L:%{strlen(getline('.'))})\         " Total lines:columns
 set statusline+=%{Percentage()}\                      " Percentage
 
-" Colour the status line
-hi statusline ctermfg=3 ctermbg=0
-
 " Change the status line colour in INSERT mode
-au InsertEnter * hi statusline ctermfg=2 ctermbg=0
-au InsertLeave * hi statusline ctermfg=3 ctermbg=0
+au InsertEnter * hi statusline ctermfg=0    ctermbg=2    cterm=NONE guifg=#121110 guibg=#96dd22 gui=NONE
+au InsertLeave * hi statusline ctermfg=0    ctermbg=3    cterm=NONE guifg=#121110 guibg=#e2da6e gui=NONE
 
 
 " =============================================================================
@@ -410,7 +427,7 @@ nnoremap <C-w><C-v> :vsplit<CR>
 nnoremap <C-w><C-n> :split<CR>
 
 " Map Ctrl+arrows to the correct escape sequences
-" (vim doesn't recognise C-Up and C-Down, nfi why)
+" (Terminal vim doesn't recognise C-Up and C-Down, nfi why)
 set <C-Left>=[D
 set <C-Right>=[C
 set <F13>=[A
@@ -419,10 +436,14 @@ set <F14>=[B
 " Make Ctrl+arrows navigate split windows
 map  <C-Left>   <C-w>h
 map  <C-Right>  <C-w>l
+map  <C-Up>     <C-w>k
+map  <C-Down>   <C-w>j
 map  <F13>      <C-w>k
 map  <F14>      <C-w>j
 imap <C-Left>   <C-o><C-w>h
 imap <C-Right>  <C-o><C-w>l
+imap <C-Up>     <C-o><C-w>k
+imap <C-Down>   <C-o><C-w>j
 imap <F13>      <C-o><C-w>k
 imap <F14>      <C-o><C-w>j
 
@@ -451,10 +472,17 @@ imap <PageUp>    <C-o><C-u>
 imap <PageDown>  <C-o><C-d>
 
 " Fix Option+arrows
-map  <Esc>b  b
-map  <Esc>f  e
-imap <Esc>b  <Esc>bi
-imap <Esc>f  <Esc>ea
+if (has('gui_macvim'))
+	map <A-Left>   b
+	map <A-Right>  e
+	imap <A-Left>  <Esc>b
+	imap <A-Right> <Esc>ea
+else
+	noremap  <Esc>b  b
+	noremap  <Esc>f  e
+	inoremap <Esc>b  <Esc>bi
+	inoremap <Esc>f  <Esc>ea
+endif
 
 " Don't reset the cursor column
 set nostartofline
@@ -469,8 +497,10 @@ au! BufWritePost .vimrc so %
 
 
 " Automatically resize windows when terminal is resized
-au VimResized * exe "normal! \<C-w>="
-
+" (Don't do this in GUI mode or whatever)
+if (&term == "screen" || &term == "xterm" || &term == "xterm-256color")
+	au VimResized * exe "normal! \<C-w>="
+endif
 
 " Update the terminal title
 au BufEnter * let &titlestring = hostname . ":vim:" . substitute(expand("%:t"),"^$","-","")
