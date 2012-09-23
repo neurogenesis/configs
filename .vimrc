@@ -120,6 +120,8 @@ function! EditMode()
         return 'INSERT'
     elseif (m == 'v') || (m == 'V') || (m == '')
         return 'VISUAL'
+	elseif (m == 's') || (m == 'S') || (m == '')
+		return 'SELECT'
     elseif (m == 'R')
         return 'REPLACE'
     elseif (m == 'no')
@@ -249,6 +251,9 @@ function! BatteryCharge(ct, last)
 	endif
 endfunction
 
+" Command-bar query colour (used with NanoClose(), &c.)
+hi NanoMsg ctermfg=1    ctermbg=NONE cterm=NONE guifg=#ee274d guibg=NONE gui=NONE
+
 " Emulate nano's Ctrl+X feature
 function! NanoClose()
 	" If the file hasn't been modified, exit immediately
@@ -325,10 +330,6 @@ set cursorline
 " Highlight search results
 set hlsearch
 
-" Command-bar query colour (used with NanoClose(), &c.)
-hi NanoMsg ctermfg=1    ctermbg=NONE cterm=NONE guifg=#ee274d guibg=NONE gui=NONE
-
-
 " Always show the status line
 set laststatus=2
 
@@ -402,6 +403,9 @@ nnoremap <leader>s :new<CR>:echo ',s — Horizontal split with new file'<CR>
 " ,S => Open horizontal split with existing file
 nnoremap <leader>S :split<CR>:echo ',S — Horizontal split with existing file'<CR>
 
+" ,hi => Show highlight group(s) of the character beneath the cursor
+nnoremap <leader>hi :echo ",hi — Highlight group(s) of character:\n      hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
 
 " =============================================================================
 " KEY BINDINGS
@@ -413,6 +417,9 @@ imap <C-x>  <C-o>:call NanoClose()<CR>
 
 " Make left/right arrows go up and down lines
 set whichwrap+=<,>,[,],h,l
+
+" Make Backspace and Delete behave normally
+set backspace=2
 
 " Make ; behave like : in normal mode
 nnoremap ; :

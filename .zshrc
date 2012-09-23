@@ -159,7 +159,7 @@ alias sudo='sudo '
 # #########################################
 # On my local machine: TextMate; otherwise vim
 if [[ `uname -n` == 'kapche-lanka'* ]]; then
-	if [[ -n `which mate` ]]; then
+	if [[ -x `which mate` ]]; then
 		export EDITOR='mate -w'
 	else
 		export EDITOR='vim'
@@ -167,13 +167,13 @@ if [[ `uname -n` == 'kapche-lanka'* ]]; then
 
 # On other machines: try vim
 else
-	if [[ -n `which vim` ]]; then
+	if [[ -x `which vim` ]]; then
 		export EDITOR='vim'
-	elif [[ -n `which nano` ]]; then
+	elif [[ -x `which nano` ]]; then
 		export EDITOR='nano'
-	elif [[ -n `which pico` ]]; then
+	elif [[ -x `which pico` ]]; then
 		export EDITOR='pico'
-	elif [[ -n `which ee` ]]; then
+	elif [[ -x `which ee` ]]; then
 		export EDITOR='ee'
 	else
 		export EDITOR='vi'
@@ -258,7 +258,7 @@ alias config-cp="config-copy"
 if [[ `uname -n` == 'kapche-lanka'* ]] || [[ `uname -n` == 'rondolina'* ]]; then
 	function man {
 		# Check to see if 'open' is installed (this is Mac-specific)
-		if [[ -n `which open` ]]; then
+		if [[ -x `which open` ]]; then
 			# If there's a second argument, just return the normal man command
 			if [[ -n $2 ]]; then
 				`which man` $@
@@ -484,7 +484,7 @@ fi
 # We need to prefer the (coreutils) ls in /opt/bin if it's there,
 # since the busybox ls is stupid
 if [[ `uname -n` == 'iserlohn'* ]]; then
-	if [[ -n /opt/bin/ls ]]; then
+	if [[ -x /opt/bin/ls ]]; then
 		alias ls='/opt/bin/ls --color=always'
 	else
 		alias ls='ls --color=always'
