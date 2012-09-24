@@ -32,9 +32,9 @@ let g:colors_name = "Monokai-mod"
 " 251: grey  -- #c6c6c6
 
 " Cursor
-hi Cursor              ctermfg=7    ctermbg=5    cterm=NONE guifg=#ffffff  guibg=#8a6cb4  gui=NONE
+hi Cursor              ctermfg=231 ctermbg=5    cterm=NONE guifg=#ffffff  guibg=#8a6cb4  gui=NONE
 " Cursor highlight: line
-hi CursorLine          ctermfg=7    ctermbg=235  cterm=NONE guifg=NONE     guibg=#262626  gui=NONE
+hi CursorLine          ctermfg=231 ctermbg=235  cterm=NONE guifg=NONE     guibg=#262626  gui=NONE
 " Cursor highlight: column — not used
 hi CursorColumn        ctermfg=NONE ctermbg=237  cterm=NONE guifg=NONE     guibg=#3c3d37  gui=NONE
 
@@ -55,7 +55,7 @@ hi StatusLine          ctermfg=0    ctermbg=3    cterm=NONE guifg=#171514  guibg
 hi StatusLineNC        ctermfg=0    ctermbg=251  cterm=NONE guifg=#171514  guibg=#c6c6c6  gui=NONE
 
 " Wildmenu selection highlight
-hi WildMenu            ctermfg=7    ctermbg=5    cterm=NONE guifg=#ffffff  guibg=#8a6cb4  gui=NONE
+hi WildMenu            ctermfg=231  ctermbg=5    cterm=NONE guifg=#ffffff  guibg=#8a6cb4  gui=NONE
 
 " Vertical split dividers
 hi VertSplit           ctermfg=241  ctermbg=241  cterm=NONE guifg=#3a3a3a  guibg=#3a3a3a  gui=NONE

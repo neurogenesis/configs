@@ -149,13 +149,19 @@ function! FileName()
 endfunction
 
 " Return the 'modified' icon for the status line
-" (i don't care about 'modifiable')
+" (also whether it's read-only)
 function! Modified()
-	if (&modified == 0)
-		return ''
-	else
-		return ' ●'
+	let mr = ''
+
+	if (&readonly == 1)
+		let mr .= ' [RO]'
 	endif
+
+	if (&modified == 1)
+		let mr .= ' ●'
+	endif
+
+	return mr
 endfunction
 
 " Format line endings and file encoding for the status line
@@ -337,11 +343,15 @@ set laststatus=2
 set statusline=\ 
 
 " Edit mode
-if (has('unix')) 
-	set statusline+=%{EditMode()}‣\ \ 
+if (has('unix'))
+	if ($USER == 'root') 
+		set statusline+=%{EditMode()}#\ 
+	else
+		set statusline+=%{EditMode()}‣\ 
+	endif
 else
 	" The triangle thing doesn't work on Windows...
-	set statusline+=%{EditMode()}:\ \ 
+	set statusline+=%{EditMode()}:\ 
 endif
 
 " Battery charge — requires batcharge.py
