@@ -92,31 +92,31 @@ at_normal=$'\e[0m'
 # GREEN left prompt for local
 if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
-fi
+
 
 # GREEN left prompt for rondolina
-if [[ `uname -n` == 'rondolina'* ]]; then
+elif [[ `uname -n` == 'rondolina'* ]]; then
 	PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
-fi
 
 # YELLOW left prompt for iserlohn (router)
-if [[ `uname -n` == 'iserlohn'* ]]; then
+elif [[ `uname -n` == 'iserlohn'* ]]; then
 	PROMPT="%{${fg_yellow2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_yellow2}%}%#%{${at_normal}%} "
-fi
 
 # RED left prompt for satanism (eggdrop)
-if [[ `uname -n` == 'ester'* ]]; then
+elif [[ `uname -n` == 'ester'* ]]; then
 	PROMPT="%{${fg_red2}%}satanism%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_red2}%}%#%{${at_normal}%} "
-fi
 
 # CYAN left prompt for odin (linode)
-if [[ `uname -n` == 'odin'* ]]; then
+elif [[ `uname -n` == 'odin'* ]]; then
 	PROMPT="%{${fg_cyan2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
-fi
 
 # CYAN left prompt for dreamhost
-if [[ `uname -n` == 'washingtondc'* ]]; then
+elif [[ `uname -n` == 'washingtondc'* ]]; then
 	PROMPT="%{${fg_cyan2}%}dreamhost%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_cyan2}%}%#%{${at_normal}%} "
+
+# GREEN left prompt for anything else
+else
+	PROMPT="%{${fg_green2}%}%m%{${at_normal}%}%{${fg_grey2}%}:%{${at_normal}%}%c %{${fg_green2}%}%#%{${at_normal}%} "
 fi
 
 
@@ -124,10 +124,18 @@ fi
 # UPDATE TERMINAL TITLE
 # Update the tab title before each prompt is shown
 # ################################################
+
+# This executes after a command completes but before the prompt is shown.
+# Mainly useful for when the directory changes.
 precmd() {
 	# host:directory
 	print -Pn "\e]0;%m:%c\a"
 }
+
+# Use this in .ssh/config to automatically update the title for ssh:
+# Host *
+# PermitLocalCommand yes
+# LocalCommand print -Pn "\e]0;ssh\a"
 
 
 # #####################################

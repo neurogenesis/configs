@@ -70,6 +70,14 @@ set scrolloff=3
 " Open new split windows below and to the right
 set splitright splitbelow
 
+" Fix colour display on machines that lack xterm-256color support
+" (like the test boxes we have at work)
+if ( !has('gui_running') && filereadable('/usr/share/terminfo/x/xterm-color') && !filereadable('/usr/share/terminfo/x/xterm-256color') )
+	set t_Co=256
+	set t_AB=[48;5;%dm
+	set t_AF=[38;5;%dm
+endif
+
 " Enable syntax highlighting
 syntax enable
 
@@ -86,7 +94,12 @@ colorscheme Monokai-mod
 
 if has('gui_running')
 	" GUI font
-	set guifont=Andale\ Mono:h12
+	if (has('win32'))
+		" h12 is too big for Windows
+		set guifont=Andale\ Mono:h9
+	else
+		set guifont=Andale\ Mono:h12
+	endif
 
 	" Disable antialiasing in MacVim
 	if (exists('+antialias'))
@@ -153,7 +166,7 @@ endfunction
 function! Modified()
 	let mr = ''
 
-	if (&readonly == 1)
+	if ((&readonly == 1) || (&modifiable == 0))
 		let mr .= ' [RO]'
 	endif
 
@@ -211,15 +224,15 @@ function! Percentage()
 		if (has('unix'))
 			return '  ⤒'
 		else
-			return '  t'
+			return '  ▲'
 		endif
-	" End of file is visible ('Bot' in %P)
+	" End of file is visible ('Bot' in %P) ▲ 
 	elseif (line("w$") == line("$"))
 		" Down-arrow thing doesn't work in Windows...
 		if (has('unix'))
 			return '  ⤓'
 		else
-			return '  b'
+			return '  ▼'
 		endif
 	" Anything else (nn% in %P)
 	else
@@ -509,9 +522,9 @@ set nostartofline
 " AUTO-COMMANDS / MISC.
 " =============================================================================
 
-" Automatically reload .vimrc after editing
+" Automatically reload .vimrc (and _vimrc on Windows) after editing
 au! BufWritePost .vimrc so %
-
+au! BufWritePost _vimrc so %
 
 " Automatically resize windows when terminal is resized
 " (Don't do this in GUI mode or whatever)

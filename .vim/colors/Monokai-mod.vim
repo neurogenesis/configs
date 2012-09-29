@@ -32,9 +32,9 @@ let g:colors_name = "Monokai-mod"
 " 251: grey  -- #c6c6c6
 
 " Cursor
-hi Cursor              ctermfg=231 ctermbg=5    cterm=NONE guifg=#ffffff  guibg=#8a6cb4  gui=NONE
+hi Cursor              ctermfg=231  ctermbg=5    cterm=NONE guifg=#ffffff  guibg=#8a6cb4  gui=NONE
 " Cursor highlight: line
-hi CursorLine          ctermfg=231 ctermbg=235  cterm=NONE guifg=NONE     guibg=#262626  gui=NONE
+hi CursorLine          ctermfg=231  ctermbg=235  cterm=NONE guifg=NONE     guibg=#262626  gui=NONE
 " Cursor highlight: column — not used
 hi CursorColumn        ctermfg=NONE ctermbg=237  cterm=NONE guifg=NONE     guibg=#3c3d37  gui=NONE
 
@@ -66,6 +66,9 @@ hi ColorColumn         ctermfg=NONE ctermbg=237  cterm=NONE guifg=NONE     guibg
 " Error messages — seen in command bar
 hi ErrorMsg            ctermfg=231  ctermbg=197  cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
 hi WarningMsg          ctermfg=231  ctermbg=197  cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
+
+" Command-bar questions — including 'Press ENTER' prompt
+hi Question            ctermfg=1    ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
 
 " Key sequences and <tab> characters
 hi SpecialKey          ctermfg=236  ctermbg=NONE cterm=NONE guifg=#303030  guibg=NONE     gui=NONE
@@ -112,10 +115,10 @@ hi Directory           ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg
 hi Folded              ctermfg=242  ctermbg=235  cterm=NONE guifg=#75715e  guibg=#272822  gui=NONE
 hi Character           ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg=NONE     gui=NONE
 hi Define              ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
-hi DiffAdd             ctermfg=231  ctermbg=64   cterm=bold guifg=#f8f8f2  guibg=#46830c  gui=bold
+hi DiffAdd             ctermfg=231  ctermbg=64   cterm=NONE guifg=#f8f8f2  guibg=#46830c  gui=bold
 hi DiffDelete          ctermfg=88   ctermbg=NONE cterm=NONE guifg=#8b0807  guibg=NONE     gui=NONE
 hi DiffChange          ctermfg=231  ctermbg=23   cterm=NONE guifg=#f8f8f2  guibg=#243955  gui=NONE
-hi DiffText            ctermfg=231  ctermbg=24   cterm=bold guifg=#f8f8f2  guibg=#204a87  gui=bold
+hi DiffText            ctermfg=231  ctermbg=24   cterm=NONE guifg=#f8f8f2  guibg=#204a87  gui=bold
 hi Float               ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg=NONE     gui=NONE
 hi Keyword             ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
 hi Label               ctermfg=186  ctermbg=NONE cterm=NONE guifg=#e2da6e  guibg=NONE     gui=NONE
