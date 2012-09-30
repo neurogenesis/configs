@@ -39,7 +39,7 @@ set wildmenu
 set wildignore=*.o,*~,*.pyc
 
 " Regular expressions magic
-set magic
+" set magic
 
 " Disable error bells
 set noerrorbells
@@ -47,7 +47,7 @@ set novisualbell
 set t_vb=
 
 " Reduce key-press time-out
-set timeoutlen=350
+set timeoutlen=450
 
 " Set lines of history to remember
 set history=500
@@ -249,8 +249,10 @@ function! Percentage()
 	endif
 endfunction
 
-" Return battery charge level
-" (requires batcharge.py in PATH)
+" Return battery charge level (requires batcharge.py in PATH)
+" (Adding a call to the py script directly to the status line
+"  causes HUGE problems because it's run repeatedly every single
+"  time the cursor moves — this function basically rate-limits it)
 function! BatteryCharge(ct, last)
 	" Always run once at start-up
 	if (a:ct == 0)
@@ -268,6 +270,109 @@ function! BatteryCharge(ct, last)
 		let g:batcheck = strftime("%s")
 		return g:batlast
 	endif
+endfunction
+
+" Comment lines of code
+function! Comment(cmode)
+	" Abort if the line is empty or contains only white space
+	if (getline('.') =~ '^\s*$')
+		return
+	endif
+
+	" Define comment characters for different file types
+
+	" Double-quote (like VIM scripts)
+	if (&ft == 'vim')
+		let commchar1 = '" '
+		let commchar2 = ''
+
+	" Hash (like shell scripts)
+	elseif (&ft == 'sshconfig' || &ft == 'sh' || &ft == 'zsh' || &ft == 'readline')
+		let commchar1 = '# '
+		let commchar2 = ''
+
+	" Hash (like Perl, Python, Ruby, PHP)
+	elseif (&ft == 'perl' || &ft == 'python' || &ft == 'ruby' || &ft == 'php')
+		let commchar1 = '# '
+		let commchar2 = ''
+
+	" Slash-slash (like C, JavaScript, Java)
+	elseif (&ft == 'c' || &ft == 'javascript' || &ft == 'java')
+		let commchar1 = '// '
+		let commchar2 = ''
+
+	" Slash-star (like CSS)
+	elseif (&ft == 'css')
+		let commchar1 = '/\* '
+		let commchar2 = ' \*/'
+
+	" Bracket-exclamation-dash-dash (like HTML)
+	elseif (&ft == 'html')
+		let commchar1 = '<!-- '
+		let commchar2 = ' -->'
+
+	endif
+
+	" Commenting ('c') mode
+	if (a:cmode == 'c')
+		" Get current line number
+		let cline = line('.')
+
+		" Insert comment char(s) at the beginning of the line
+		let ntext = substitute(getline(cline), '^\([\t\ ]*\)', '\1' . commchar1, '')
+
+		" Do the same for the end, if applicable
+		if (commchar2 != '')
+			let ntext = substitute(ntext, '$', commchar2, '')
+		endif
+
+		" Write it out
+		call setline(cline, ntext)
+
+	" Uncommenting ('u') mode
+	elseif (a:cmode == 'u')
+		" Get current line number
+		let cline = line('.')
+
+		" Remove comment char(s) from the beginning of the line
+		let ntext = substitute(getline(cline), '^\([\t\ ]*\)' . commchar1, '\1', '')
+
+		" Do the same for the end, if applicable	
+		if (commchar2 != '')
+			let ntext = substitute(ntext, commchar2 . '$', '', '')
+		endif
+
+		" Write it out
+		call setline(cline, ntext)
+	endif
+
+endfunction
+
+" 'Smart' Home-key behaviour (borrowed from vim.wikia.com)
+" On a long wrapped line, pressing Home will have the following effect
+" 1st time: Go to beginning of buffer
+" 2nd time: Go to first non-blank character on line
+" 3rd time: Go to beginning of line
+" FIXME
+function! SmartHome()
+	let first_nonblank = match(getline('.'), '\S') + 1
+
+	" Don't do anything else if we're already at the beginning of the line
+	if (col('.') == 1)
+		return '0'
+	else
+		echo 'test'
+	endif
+
+	if (first_nonblank == 1)
+		return col('.') + 1 >= col('$') ? '0' : '^'
+	endif
+
+	if (col('.') == first_nonblank)
+		return '0'  " if at first nonblank, go to start line
+	endif
+
+	return &wrap && wincol() > 1 ? 'g^' : '^'
 endfunction
 
 " Command-bar query colour (used with NanoClose(), &c.)
@@ -347,7 +452,7 @@ set nu
 set cursorline
 
 " Highlight search results
-set hlsearch
+" set hlsearch
 
 " Always show the status line
 set laststatus=2
@@ -387,6 +492,15 @@ au InsertLeave * hi statusline ctermfg=0    ctermbg=3    cterm=NONE guifg=#12111
 
 
 " =============================================================================
+" USER COMMANDS
+" =============================================================================
+
+" Comment() and Uncomment() functions
+command! Comment call Comment('c')
+command! Uncomment call Comment('u')
+
+
+" =============================================================================
 " LEADER BINDINGS
 " =============================================================================
 
@@ -402,14 +516,25 @@ nnoremap <leader>n :set nonumber!<CR>:echo ',n — Toggle line numbers'<CR>
 " ,w => Show/hide white-space characters
 nnoremap <leader>w :set list!<CR>:echo ',w — Toggle white-space characters'<CR>
 
+" ,c => Comment current/selected line(s)
+nnoremap <leader>c :call Comment('c')<CR>:echo ',c — Comment current/selected line(s)'<CR>
+vnoremap <leader>c :call Comment('c')<CR>:echo ',c — Comment current/selected line(s)'<CR>
+
+" ,u => Uncomment current/selected line(s)
+nnoremap <leader>u :call Comment('u')<CR>:echo ',u — Uncomment current/selected line(s)'<CR>
+vnoremap <leader>u :call Comment('u')<CR>:echo ',u — Uncomment current/selected line(s)'<CR>
+
+" ,z => Undo
+nnoremap <leader>z :undo<CR>:echo ',z — Undo'<CR>
+
 " ,m => Strip Windows line endings (^M)
 nnoremap <leader>m :%s///g<CR>:echo ',m — Windows line endings (^M)'<CR>
 
-" ,^ => Strip leading white space
-nnoremap <leader>^ :%s/^\s\+//g<CR>:echo ',^ — Strip leading white space'<CR>
+" ,^ => Strip leading white space from file
+nnoremap <leader>^ :%s/^\s\+//g<CR>:echo ',^ — Strip leading white space from file'<CR>
 
-" ,$ => Strip trailing white space
-nnoremap <leader>$ :%s/\s\+$//g<CR>:echo ',$ — Strip trailing white space'<CR>
+" ,$ => Strip trailing white space from file
+nnoremap <leader>$ :%s/\s\+$//g<CR>:echo ',$ — Strip trailing white space from file'<CR>
 
 " ,vi => Edit .vimrc in new split window
 nnoremap <leader>vi <C-w><C-v><C-w><C-l>:e $MYVIMRC<CR>:echo ',vi — Open and edit .vimrc'<CR>
@@ -488,13 +613,23 @@ cmap <C-a>  <C-b>
 imap <C-k>  <Esc>ddi
 
 " Fix Home and End
-map  <Home>  ^
-map  <End>   $
-imap <Home>  <Esc>^i
-imap <End>   <Esc>$a
-cmap <Home>  <C-b>
-cmap <End>   <C-e>
+" map  <Home>  ^
 
+noremap  <expr> <silent> <Home> SmartHome()
+inoremap <expr> <silent> <Home> SmartHome()
+
+" map  <End>   $
+" imap <Home>  <Esc>^i
+" imap <End>   <Esc>$a
+" cmap <Home>  <C-b>
+" cmap <End>   <C-e>
+
+" noremap <expr> <Home> (col('.') == matchend(getline('.'), '^\s*')+1 ? '0' : '^')
+" noremap <expr> <End> (col('.') == match(getline('.'), '\s*$') ? '$' : 'g_')
+" vnoremap <expr> <End> (col('.') == match(getline('.'), '\s*$') ? '$h' : 'g_')
+" imap <Home> <C-o><Home>
+" imap <End> <C-o><End>
+ 
 " Fix PageUp and PageDown
 map  <PageUp>    <C-u>
 map  <PageDown>  <C-d>
@@ -505,7 +640,7 @@ imap <PageDown>  <C-o><C-d>
 if (has('gui_macvim'))
 	map <A-Left>   b
 	map <A-Right>  e
-	imap <A-Left>  <Esc>b
+	imap <A-Left>  <Esc>bi
 	imap <A-Right> <Esc>ea
 else
 	noremap  <Esc>b  b
@@ -513,6 +648,20 @@ else
 	inoremap <Esc>b  <Esc>bi
 	inoremap <Esc>f  <Esc>ea
 endif
+
+" Make Tab and Shift+Tab work in NORMAL/VISUAL/SELECT modes
+nnoremap <Tab>   v:><CR>
+nnoremap <S-Tab> v:<<CR>
+
+vnoremap <Tab>   :><CR>gv
+vnoremap <S-Tab> :<<CR>gv
+
+snoremap <Tab>   <C-g>:><CR>gv<C-g>
+snoremap <S-Tab> <C-g>:<<CR>gv<C-g>
+
+" Make Shift+Tab work in INSERT mode
+" (Tab by itself is for other things, obv)
+inoremap <S-Tab> <C-o>v:<<CR>
 
 " Don't reset the cursor column
 set nostartofline

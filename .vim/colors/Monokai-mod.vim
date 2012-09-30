@@ -109,26 +109,28 @@ hi Boolean             ctermfg=5    ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg
 " Bracket matching
 hi MatchParen          ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
 
+" 'TODO' and 'FIXME' in comments
+hi Todo                ctermfg=0    ctermbg=NONE cterm=NONE guifg=#090909  guibg=#e9bd4b  gui=NONE
+
 hi Pmenu               ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=NONE
 hi PmenuSel            ctermfg=NONE ctermbg=59   cterm=NONE guifg=NONE     guibg=#49483e  gui=NONE
 hi Directory           ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg=NONE     gui=NONE
 hi Folded              ctermfg=242  ctermbg=235  cterm=NONE guifg=#75715e  guibg=#272822  gui=NONE
 hi Character           ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg=NONE     gui=NONE
 hi Define              ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
-hi DiffAdd             ctermfg=231  ctermbg=64   cterm=NONE guifg=#f8f8f2  guibg=#46830c  gui=bold
+hi DiffAdd             ctermfg=231  ctermbg=64   cterm=NONE guifg=#f8f8f2  guibg=#46830c  gui=NONE
 hi DiffDelete          ctermfg=88   ctermbg=NONE cterm=NONE guifg=#8b0807  guibg=NONE     gui=NONE
 hi DiffChange          ctermfg=231  ctermbg=23   cterm=NONE guifg=#f8f8f2  guibg=#243955  gui=NONE
-hi DiffText            ctermfg=231  ctermbg=24   cterm=NONE guifg=#f8f8f2  guibg=#204a87  gui=bold
+hi DiffText            ctermfg=231  ctermbg=24   cterm=NONE guifg=#f8f8f2  guibg=#204a87  gui=NONE
 hi Float               ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg=NONE     gui=NONE
 hi Keyword             ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
 hi Label               ctermfg=186  ctermbg=NONE cterm=NONE guifg=#e2da6e  guibg=NONE     gui=NONE
 hi Special             ctermfg=231  ctermbg=NONE cterm=NONE guifg=#f8f8f2  guibg=NONE     gui=NONE
 hi StorageClass        ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
 hi Tag                 ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
-hi Title               ctermfg=231  ctermbg=NONE cterm=NONE guifg=#f8f8f2  guibg=NONE     gui=bold
-hi Todo                ctermfg=95   ctermbg=NONE cterm=NONE guifg=#75715e  guibg=NONE     gui=inverse,bold
+hi Title               ctermfg=231  ctermbg=NONE cterm=NONE guifg=#f8f8f2  guibg=NONE     gui=NONE
 hi Type                ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=NONE
-hi Underlined          ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=underline
+hi Underlined          ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=NONE
 
 
 " ===================
@@ -157,7 +159,7 @@ hi htmlSpecialChar     ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg
 " ===================
 " CSS-specific syntax
 " ===================
-hi cssURL              ctermfg=208  ctermbg=NONE cterm=NONE guifg=#fd971f  guibg=NONE     gui=italic
+hi cssURL              ctermfg=208  ctermbg=NONE cterm=NONE guifg=#fd971f  guibg=NONE     gui=NONE
 hi cssFunctionName     ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
 hi cssColor            ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg=NONE     gui=NONE
 hi cssPseudoClassId    ctermfg=148  ctermbg=NONE cterm=NONE guifg=#a5e02d  guibg=NONE     gui=NONE
@@ -170,7 +172,7 @@ hi cssBraces           ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg
 " ==========================
 " JavaScript-specific syntax
 " ==========================
-hi javaScriptFunction      ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=italic
+hi javaScriptFunction      ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
 hi javaScriptRailsFunction ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
 hi javaScriptBraces        ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=NONE
 
@@ -191,9 +193,9 @@ hi rubyClass                    ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee27
 hi rubyFunction                 ctermfg=148  ctermbg=NONE cterm=NONE guifg=#a5e02d  guibg=NONE     gui=NONE
 hi rubyInterpolationDelimiter   ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=NONE
 hi rubySymbol                   ctermfg=141  ctermbg=NONE cterm=NONE guifg=#8a6cb4  guibg=NONE     gui=NONE
-hi rubyConstant                 ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=italic
+hi rubyConstant                 ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
 hi rubyStringDelimiter          ctermfg=186  ctermbg=NONE cterm=NONE guifg=#e2da6e  guibg=NONE     gui=NONE
-hi rubyBlockParameter           ctermfg=208  ctermbg=NONE cterm=NONE guifg=#fd971f  guibg=NONE     gui=italic
+hi rubyBlockParameter           ctermfg=208  ctermbg=NONE cterm=NONE guifg=#fd971f  guibg=NONE     gui=NONE
 hi rubyInstanceVariable         ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=NONE
 hi rubyInclude                  ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
 hi rubyGlobalVariable           ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=NONE
@@ -205,7 +207,7 @@ hi rubyClassVariable            ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE 
 hi rubyOperator                 ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
 hi rubyException                ctermfg=197  ctermbg=NONE cterm=NONE guifg=#ee274d  guibg=NONE     gui=NONE
 hi rubyPseudoVariable           ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE     guibg=NONE     gui=NONE
-hi rubyRailsUserClass           ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=italic
+hi rubyRailsUserClass           ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
 hi rubyRailsARAssociationMethod ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
 hi rubyRailsARMethod            ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
 hi rubyRailsRenderMethod        ctermfg=81   ctermbg=NONE cterm=NONE guifg=#64d9ed  guibg=NONE     gui=NONE
