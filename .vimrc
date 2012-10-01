@@ -287,7 +287,7 @@ function! Comment(cmode)
 		let commchar2 = ''
 
 	" Hash (like shell scripts)
-	elseif (&ft == 'sshconfig' || &ft == 'sh' || &ft == 'zsh' || &ft == 'readline')
+	elseif (&ft == 'sshconfig' || &ft == 'sh' || &ft == 'zsh' || &ft == 'readline' || &ft == 'crontab')
 		let commchar1 = '# '
 		let commchar2 = ''
 
@@ -355,24 +355,16 @@ endfunction
 " 3rd time: Go to beginning of line
 " FIXME
 function! SmartHome()
-	let first_nonblank = match(getline('.'), '\S') + 1
-
 	" Don't do anything else if we're already at the beginning of the line
 	if (col('.') == 1)
 		return '0'
+	endif
+
+	if (col('.') == matchend(getline('.'), '^\s*') + 1)
+		return '0'
 	else
-		echo 'test'
+		return '^'
 	endif
-
-	if (first_nonblank == 1)
-		return col('.') + 1 >= col('$') ? '0' : '^'
-	endif
-
-	if (col('.') == first_nonblank)
-		return '0'  " if at first nonblank, go to start line
-	endif
-
-	return &wrap && wincol() > 1 ? 'g^' : '^'
 endfunction
 
 " Command-bar query colour (used with NanoClose(), &c.)
@@ -554,6 +546,16 @@ nnoremap <leader>S :split<CR>:echo ',S — Horizontal split with existing file'<
 " ,hi => Show highlight group(s) of the character beneath the cursor
 nnoremap <leader>hi :echo ",hi — Highlight group(s) of character:\n      hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
+" ,case => Toggle case of current word
+nnoremap <leader>case g~iw:echo ',case — Toggle case of current word'<CR>
+vnoremap <leader>case g~iw:echo ',case — Toggle case of current word'<CR>
+
+" ,lower => Convert selected text to lower-case
+snoremap <leader>lower gu:echo ',lower — Convert selected text to lower-case'<CR>
+
+" ,upper => Convert selected text to upper-case
+snoremap <leader>upper gU:echo ',upper — Convert selected text to upper-case'<CR>
+
 
 " =============================================================================
 " KEY BINDINGS
@@ -602,34 +604,27 @@ imap <C-Down>   <C-o><C-w>j
 imap <F13>      <C-o><C-w>k
 imap <F14>      <C-o><C-w>j
 
+" Fix Home and End
+map  <End>   $
+imap <End>   <Esc>$a
+cmap <Home>  <C-b>
+cmap <End>   <C-e>
+
+" 'Smart' Home
+" ( was: imap <Home>  <Esc>^i )
+noremap <expr> <silent> <Home> SmartHome()
+imap <silent> <Home> <C-o><Home>
+
 " Fix Ctrl+A and Ctrl+E
-map  <C-a>  ^
+map  <C-a>  <Home>
 map  <C-e>  $
-imap <C-a>  <Esc>^i
+imap <C-a>  <C-o><Home>
 imap <C-e>  <Esc>$a
 cmap <C-a>  <C-b>
 
 " Fix Ctrl+K
 imap <C-k>  <Esc>ddi
 
-" Fix Home and End
-" map  <Home>  ^
-
-noremap  <expr> <silent> <Home> SmartHome()
-inoremap <expr> <silent> <Home> SmartHome()
-
-" map  <End>   $
-" imap <Home>  <Esc>^i
-" imap <End>   <Esc>$a
-" cmap <Home>  <C-b>
-" cmap <End>   <C-e>
-
-" noremap <expr> <Home> (col('.') == matchend(getline('.'), '^\s*')+1 ? '0' : '^')
-" noremap <expr> <End> (col('.') == match(getline('.'), '\s*$') ? '$' : 'g_')
-" vnoremap <expr> <End> (col('.') == match(getline('.'), '\s*$') ? '$h' : 'g_')
-" imap <Home> <C-o><Home>
-" imap <End> <C-o><End>
- 
 " Fix PageUp and PageDown
 map  <PageUp>    <C-u>
 map  <PageDown>  <C-d>

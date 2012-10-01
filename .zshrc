@@ -499,6 +499,11 @@ if [[ `uname -n` == 'iserlohn'* ]]; then
 	fi
 fi
 
+# Add /opt/scripts to PATH
+if [[ `uname -n` == 'iserlohn'* ]]; then
+	export PATH="/opt/scripts:$PATH"
+fi
+
 
 # ########
 # FOR ODIN
