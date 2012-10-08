@@ -120,16 +120,66 @@ else
 fi
 
 
-# ################################################
-# UPDATE TERMINAL TITLE
-# Update the tab title before each prompt is shown
-# ################################################
+# #################################################
+# PRECMD BEHAVIOUR
+# Update the tab title before each prompt is shown;
+# also, do some stuff for work
+# #################################################
 
 # This executes after a command completes but before the prompt is shown.
 # Mainly useful for when the directory changes.
 precmd() {
-	# host:directory
+	# Get last command return code
+	lastret=$?
+
+	# Update title: host:directory
 	print -Pn "\e]0;%m:%c\a"
+
+
+	# Check to see if we've just completed an SSH session on heinessen
+	if [[ $history[$[HISTCMD-1]] != 'ssh heinessen' ]]; then
+		# If not, return
+		return
+
+	# If so...
+	else
+		# If we returned something aside from 255, return
+		if [[ $lastret != 255 ]]; then
+			return
+
+		# Otherwise...
+		else
+			# Get the current Wi-Fi network (if any)
+			wlan=`ioreg -l -n AirPortDriver | grep -i --color=NEVER "IO80211SSID" | perl -pe "s/(^.+SSID\" = \"|\"$)//g"`
+
+			# Set prefix or exit based on the above
+			if [[ $wlan == *Conference ]]; then
+				locprefix='Wi-Fi'
+
+			elif [[ $wlan == '' ]]; then
+				locprefix='Ethernet'
+
+			else
+				exit 1
+			fi
+
+			# Check to see if we're on DHCP already
+			location=`scselect | grep --color=NEVER "^\s*\*\s" | perl -pe 's/(^\s\*\s[0-9A-F\-]+\t\(|\)$)//g'`
+
+			# If we are, who cares
+			if [[ $location == '$locprefix (via DHCP)' ]]; then
+				exit
+
+			else
+				# Go through DHCP
+				scselect "$locprefix (via DHCP)" > /dev/null
+
+				# Launch a script to check for heinessen's return
+				# ~/Development/work/check-for-heinessen.sh $locprefix
+				(~/Development/work/check-for-heinessen.sh $locprefix &) 2> /dev/null > /dev/null
+			fi
+		fi
+	fi
 }
 
 # Use this in .ssh/config to automatically update the title for ssh:
@@ -138,16 +188,21 @@ precmd() {
 # LocalCommand print -Pn "\e]0;ssh\a"
 
 
-# #####################################
-# ENABLE HOME/END/DELETE KEYS
-# (this doesn't actually work, i dunno)
-# #####################################
+# ######################################
+# FIX HOME/END/DELETE KEYS
+# (Somehow i broke these in Terminal
+#  when i was messing with vim bindings)
+# ######################################
 
-bindkey '^[[H'  beginning-of-line
-bindkey '^[[F'  end-of-line
+bindkey ''    beginning-of-line
+bindkey ''    end-of-line
 
-bindkey	"^[[3~"  delete-char
-bindkey	"^[3;5~" delete-char
+bindkey 'b'   backward-word
+bindkey 'f'   forward-word
+
+bindkey ''    kill-line
+
+bindkey	'[3~'  delete-char
 
 
 # #############
@@ -189,6 +244,13 @@ else
 fi
 
 alias edit=$EDITOR
+
+
+# ##############################################################
+# DON'T USE VI MODE
+# (Since i use vim for my editor zsh will do this by default...)
+# ##############################################################
+bindkey -e
 
 
 # ############
@@ -414,6 +476,9 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 # colour directories for 'ls'
 zstyle ':completion:*:default' list-colors 'no=0:fi=0:di=36:ln=33:ex=31:ma=0;45'
 
+fpath=(~/.zsh $fpath)
+autoload -U ~/.zsh/*(:t)
+
 
 # ########################
 # TERMINAL RESUME FOR LION
@@ -513,4 +578,7 @@ if [[ `uname -n` == 'odin'* ]]; then
     alias ls='ls --color=always'
 fi
 
-
+# ##########
+# WORK STUFF
+# ##########
+source ~/.zshrc.work
