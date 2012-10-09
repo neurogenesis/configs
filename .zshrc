@@ -160,16 +160,17 @@ precmd() {
 				locprefix='Ethernet'
 
 			else
-				exit 1
+				return
 			fi
 
 			# Check to see if we're on DHCP already
 			location=`scselect | grep --color=NEVER "^\s*\*\s" | perl -pe 's/(^\s\*\s[0-9A-F\-]+\t\(|\)$)//g'`
 
 			# If we are, who cares
-			if [[ $location == '$locprefix (via DHCP)' ]]; then
-				exit
+			if [[ $location == "$locprefix (via DHCP)" ]]; then
+				return
 
+			# If we're not...
 			else
 				# Go through DHCP
 				scselect "$locprefix (via DHCP)" > /dev/null
@@ -544,6 +545,8 @@ unset CDPATH
 # ############
 # FOR MACPORTS
 # ############
+export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+
 # My local machine only
 if [[ `uname -n` == 'kapche-lanka'* ]]; then
 	export PATH=/opt/local/bin:/opt/local/sbin:/Volumes/Garga\ Falmul/Development/ginei-tools/ginei-names:$PATH
