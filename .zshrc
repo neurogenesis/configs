@@ -9,14 +9,15 @@
 # Dropbox on any machine without having to maintain a bunch of separate files
 # for different OSes or hosts.
 # 
-# The script is also portable to bash, and maybe ksh — simply rename or 
-# symlink it to the appropriate file name and it should work.
+# It is also portable to bash, and maybe ksh — simply rename or symlink it to
+# the appropriate file name and it should work. It probably DOESN'T work with
+# ash or dash.
 # 
 # My assumptions and focus within lean heavily towards Mac OS X, since it is
 # the platform i am normally working from/on. However, i do interact with both
 # GNU- and BusyBox-based Linux systems quite regularly, so i have tried to
 # make everything work there as much as possible.
-
+# #############################################################################
 
 
 
