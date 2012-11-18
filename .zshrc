@@ -1,5 +1,24 @@
 
-# This script should be portable to bash, and maybe ksh
+# #############################################################################
+# SHELL PROFILE
+# 
+# This script represents my complete shell profile — all of my aliases,
+# functions, environmental variables, key bindings, and completion settings.
+# 
+# The script is designed for maximum portability, so that i can symlink it to
+# Dropbox on any machine without having to maintain a bunch of separate files
+# for different OSes or hosts.
+# 
+# The script is also portable to bash, and maybe ksh — simply rename or 
+# symlink it to the appropriate file name and it should work.
+# 
+# My assumptions and focus within lean heavily towards Mac OS X, since it is
+# the platform i am normally working from/on. However, i do interact with both
+# GNU- and BusyBox-based Linux systems quite regularly, so i have tried to
+# make everything work there as much as possible.
+
+
+
 
 # ####################
 # SET UP LOCALE
@@ -28,9 +47,8 @@ export LC_TIME='en_GB.UTF-8'
 
 # $shell will indicate the current shell
 # This is NOT the same as $SHELL, which always returns the log-in shell
-# (This is somewhat overly complicated, but it works with BSD, GNU, and BusyBox)
 # We're defining this here instead of below because it's necessary for `cmd`
-shell="`ps | grep -E "^[\\t ]*$$" | awk '{ print \$NF }' | sed ${sedopt} 's/^-//'`"
+shell="`ps | awk "/[\t ]*${$}[\t ]/ { print \\$NF }" | sed 's/^-//'`"
 
 function cmd {
 	# Usage information
@@ -857,18 +875,30 @@ fi
 # ###########################
 
 # Assign my SSH client address to $me, and update .ssh/config
-# This makes it easier to scp things when i'm on the VPN
+
+# I do this because i often need to scp things back to myself when i'm
+# connecting to my work machine, but since i'm dynamically assigned an IP
+# by our VPN server, i have no way of knowing what the correct host is 
+# to get back to my local machine. To fix this, i define a host called 'me'
+# and set its value to my SSH client address.
+
+# So, for example, if i connect to my work machine from 10.0.1.5, i will
+# set the SSH HostName of 'Host me' to 10.0.1.5. That way, i can just do
+# `scp file.ext me:/some/path`
+
 export me=''
 
-# I'm sorry to say that only very recent versions of `dropbear` provide any
+# I'm sorry to say that only very recent versions of dropbear provide any
 # environmental variables, so this is pretty much limited to OpenSSH
 if [[ "${SSH_CLIENT}" != '' ]]; then
 	export me="`echo "${SSH_CLIENT}" | awk '{ print $1 }'`"
 
-	if [[ -f ~/.ssh/config ]] && [[ "`cmd perl`" != '' ]] && [[ "`cmd tee`" != '' ]]; then
+	# Make sure that we have an .ssh/config and that perl is installed
+	if [[ -f ~/.ssh/config ]] && [[ "${perl}" != 'no' ]]; then
 		# Make a back-up
 		cp ~/.ssh/config ~/.ssh/config.bak
 
+		# Find 'Host me' in .ssh/config and substitute the current HostName value by $me
 		# Since `perl -i` breaks symlinks, we'll use `tee`
 		cat ~/.ssh/config | perl -0777 -pe 's/\n(Host\s+)me\n(HostName\s+)[^\s\n]*/\n\1me\n\2$ENV{"me"}/' | tee ~/.ssh/config > /dev/null 2>&1
 	fi
